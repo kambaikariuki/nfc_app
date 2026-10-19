@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:nfc_app/screens/auth/log_in.dart';
+import 'package:nfc_app/screens/home.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -16,7 +16,7 @@ class _SplashScreenState extends State<SplashScreen> {
       // Delay before navigating to next screen 
       Timer(const Duration(seconds: 3), () {
           Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => LoginPage()),
+          MaterialPageRoute(builder: (_) => HomeScreen()),
           );
         });
     }
