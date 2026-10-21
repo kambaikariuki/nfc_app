@@ -83,6 +83,7 @@ with SessionLocal() as db:
 
     db.commit()
 
+
     print("Test data ready!")
     print(f"Passenger email: {passenger.email}")
     print(f"Operator ID: {operator.id}")

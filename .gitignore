@@ -53,4 +53,4 @@ app.*.map.json
 .venv/
 __pycache__/
 *.py[cod]
-alembic/versions/__pycache__/
+backend/alembic/versions/
