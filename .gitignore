@@ -46,3 +46,11 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# env file
+.env
+
+.venv/
+__pycache__/
+*.py[cod]
+alembic/versions/__pycache__/
