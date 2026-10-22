@@ -105,3 +105,35 @@ def get_passenger_transactions(passenger_id: int, db: Session = Depends(get_db))
         }
         for tx in transactions
     ]
+
+@app.get("/operators/{operator_id}/transactions")
+def get_operator_transactions(operator_id: int, db: Session = Depends(get_db)):
+    wallet = db.scalar(
+        select(OperatorWallet).where(
+            OperatorWallet.operator_id == operator_id
+        )
+    )
+
+    if wallet is None:
+        raise HTTPException(404, "Operator account not found")
+
+    transactions = db.scalars(
+        select(Transaction)
+        .where(Transaction.account_id == wallet.id)
+        .order_by(Transaction.created_at.desc())
+        .limit(20)
+    ).all()
+
+    return [
+        {
+            "transaction_id": tx.id,
+            "operator_id": tx.operator_id,
+            "amount": str(tx.amount),
+            "status": tx.status,
+            "created_at": (
+                tx.created_at.isoformat()
+                if tx.created_at else None
+            ),
+        }
+        for tx in transactions
+    ]
