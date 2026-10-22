@@ -33,6 +33,7 @@ class Passenger(Base):
     cards: Mapped[list["NfcCard"]] = relationship(
         back_populates="passenger"
     )
+    password_hash: Mapped[str] = mapped_column(String(255))
 
 
 class Account(Base):
