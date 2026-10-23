@@ -2,7 +2,7 @@
 from decimal import Decimal
 from uuid import UUID
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
@@ -10,9 +10,107 @@ from database import get_db
 from payments import pay_fare
 
 from sqlalchemy import select
-from models import Account, OperatorWallet, Transaction
+from sqlalchemy.exc import IntegrityError
+from models import Account, OperatorWallet, Transaction, Passenger, Operator
+from schemas import LoginRequest, PassengerRegister
+
+from auth import (
+    create_access_token,
+    password_hasher,
+    require_operator,
+    require_passenger,
+    verify_password,
+    get_current_user
+)
 
 app = FastAPI(title="NFC Fare Collection API")
+
+# Authentication
+
+@app.post("/auth/register", status_code=201)
+def register_passenger(data: PassengerRegister, db: Session = Depends(get_db)):
+    passenger = Passenger(
+        full_name = data.full_name,
+        email = str(data.email).lower,
+        password_hash = password_hasher.hash(data.password)
+    )
+
+    try:
+        with db.begin():
+            db.add(passenger)
+            db.flush()
+
+            db.add(
+                Account(
+                    passenger_id = passenger.id,
+                    balance = Decimal("0.00"),
+                    is_active = True,
+                )
+            )
+    except IntegrityError:
+        raise HTTPException(
+            status_code=409,
+            detail="An account with this email already exists",
+        )
+
+    return {"message": "Passenger registered successfully."}
+
+@app.post("/auth/passenger/login")
+def passenger_login(data: LoginRequest, db: Session = Depends(get_db)):
+    passenger = db.scalar(select(Passenger).where(
+        Passenger.email == str(data.email).lower()
+    )
+    )
+
+    if (passenger is None or not verify_password(data.password, passenger.password_hash)):
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    token = create_access_token(passenger.id, "passenger")
+
+    return {
+        "access_token": token,
+        "token_type": "bearer"
+    }
+
+
+@app.post("/auth/operator/login")
+def operator_login(data: LoginRequest, db: Session = Depends(get_db)):
+    operator = db.scalar(select(Operator).where(
+        Operator.email == str(data.email).lower()
+    ))
+
+    if (operator is None
+        or not operator.is_active
+        or not verify_password(data.password, operator.password_hash)):
+
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    token = create_access_token(operator.id, "operator")
+
+    return {
+        "access_token": token,
+        "token_type": "bearer", 
+    }
+
+
+@app.get("/auth/me")
+def get_my_profile(current=Depends(get_current_user)):
+    user = current["user"]
+
+    return {
+        "id": user.id,
+        "full_name": user.full_name,
+        "email": user.email,
+        "role": current["role"],
+    }
 
 
 class FarePaymentRequest(BaseModel):
