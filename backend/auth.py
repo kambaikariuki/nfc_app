@@ -53,6 +53,12 @@ def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
     db: Session = Depends(get_db),
 ):
+    credentials_error = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid or expired access token",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
     token = credentials.credentials
 
     try:
@@ -61,90 +67,33 @@ def get_current_user(
             JWT_SECRET_KEY,
             algorithms=[JWT_ALGORITHM],
         )
-    except jwt.ExpiredSignatureError:
-        print("AUTH DEBUG: Token has expired")
-        raise HTTPException(status_code=401, detail="Token has expired")
-    except jwt.InvalidTokenError as exc:
-        print(f"AUTH DEBUG: JWT validation failed: {type(exc).__name__}")
-        raise HTTPException(
-            status_code=401,
-            detail="JWT validation failed",
-        )
-
-    try:
         user_id = int(payload["sub"])
         role = payload["role"]
-    except (KeyError, TypeError, ValueError):
-        print("AUTH DEBUG: Token is missing valid sub or role claims")
-        raise HTTPException(status_code=401, detail="Invalid token claims")
+
+        if role not in {"passenger", "operator"}:
+            raise credentials_error
+
+    except (jwt.InvalidTokenError, KeyError, TypeError, ValueError):
+        raise credentials_error
 
     if role == "passenger":
         user = db.scalar(
-            select(Passenger).where(Passenger.id == user_id)
+            select(Passenger).where(
+                Passenger.id == user_id,
+            )
         )
-    elif role == "operator":
+    else:
         user = db.scalar(
             select(Operator).where(
                 Operator.id == user_id,
                 Operator.is_active.is_(True),
             )
         )
-    else:
-        print("AUTH DEBUG: Invalid role in token")
-        raise HTTPException(status_code=401, detail="Invalid token role")
 
     if user is None:
-        print(f"AUTH DEBUG: No user found for role={role}, id={user_id}")
-        raise HTTPException(status_code=401, detail="User not found")
+        raise credentials_error
 
     return {"id": user.id, "role": role, "user": user}
-
-
-# def get_current_user(
-#     credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
-#     db: Session = Depends(get_db),
-# ):
-#     credentials_error = HTTPException(
-#         status_code=status.HTTP_401_UNAUTHORIZED,
-#         detail="Invalid or expired access token",
-#         headers={"WWW-Authenticate": "Bearer"},
-#     )
-
-#     token = credentials.credentials
-
-#     try:
-#         payload = jwt.decode(
-#             token,
-#             JWT_SECRET_KEY,
-#             algorithms=[JWT_ALGORITHM],
-#         )
-#         user_id = int(payload["sub"])
-#         role = payload["role"]
-
-#         if role not in {"passenger", "operator"}:
-#             raise credentials_error
-
-#     except (jwt.InvalidTokenError, KeyError, TypeError, ValueError):
-#         raise credentials_error
-
-#     if role == "passenger":
-#         user = db.scalar(
-#             select(Passenger).where(
-#                 Passenger.id == user_id,
-#             )
-#         )
-#     else:
-#         user = db.scalar(
-#             select(Operator).where(
-#                 Operator.id == user_id,
-#                 Operator.is_active.is_(True),
-#             )
-#         )
-
-#     if user is None:
-#         raise credentials_error
-
-#     return {"id": user.id, "role": role, "user": user}
 
 
 def require_passenger(current=Depends(get_current_user)):

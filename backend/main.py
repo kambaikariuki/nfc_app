@@ -136,8 +136,11 @@ def create_payment(payment: FarePaymentRequest, db: Session = Depends(get_db)):
     )
 
 
-@app.get("/passengers/{passenger_id}/balance")
-def get_passenger_balance(passenger_id: int, db: Session = Depends(get_db)):
+@app.get("/passengers/me/balance")
+def get_passenger_balance(current=Depends(require_passenger), db: Session = Depends(get_db)):
+
+    passenger_id = current["id"]
+
     account = db.scalar(
         select(Account).where(
             Account.passenger_id == passenger_id
@@ -150,12 +153,12 @@ def get_passenger_balance(passenger_id: int, db: Session = Depends(get_db)):
     return {
         "passenger_id": passenger_id,
         "balance": str(account.balance),
-        "is_active": account.is_active,
     }
 
 
-@app.get("/operators/{operator_id}/wallet")
-def get_operator_wallet(operator_id: int, db: Session = Depends(get_db)):
+@app.get("/operators/me/wallet")
+def get_operator_wallet(current=Depends(require_operator), db: Session = Depends(get_db)):
+    operator_id = current["id"]
     wallet = db.scalar(
         select(OperatorWallet).where(
             OperatorWallet.operator_id == operator_id
@@ -172,8 +175,10 @@ def get_operator_wallet(operator_id: int, db: Session = Depends(get_db)):
     }
 
 
-@app.get("/passengers/{passenger_id}/transactions")
-def get_passenger_transactions(passenger_id: int, db: Session = Depends(get_db)):
+@app.get("/passengers/me/transactions")
+def get_passenger_transactions(current=Depends(require_passenger), db: Session = Depends(get_db)):
+    passenger_id = current["id"]
+
     account = db.scalar(
         select(Account).where(
             Account.passenger_id == passenger_id
@@ -204,8 +209,9 @@ def get_passenger_transactions(passenger_id: int, db: Session = Depends(get_db))
         for tx in transactions
     ]
 
-@app.get("/operators/{operator_id}/transactions")
-def get_operator_transactions(operator_id: int, db: Session = Depends(get_db)):
+@app.get("/operators/me/transactions")
+def get_operator_transactions(current=Depends(require_operator), db: Session = Depends(get_db)):
+    operator_id = current["id"]
     wallet = db.scalar(
         select(OperatorWallet).where(
             OperatorWallet.operator_id == operator_id
