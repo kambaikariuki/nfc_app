@@ -11,12 +11,6 @@ app.include_router(payments.router)
 app.include_router(passengers.router)
 app.include_router(operators.router)
 
-# Authentication DONE
-# Payments DONE
-# Passengers DONE
-# Operators
-
-
 @app.get("/")
 def read_root():
     return {"message": "NFC Fare Collection API is running"}
