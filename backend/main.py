@@ -1,6 +1,4 @@
-
 from decimal import Decimal
-from uuid import UUID
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
@@ -12,7 +10,7 @@ from payments import pay_fare
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from models import Account, OperatorWallet, Transaction, Passenger, Operator
-from schemas import LoginRequest, PassengerRegister
+from schemas import LoginRequest, PassengerRegister, FarePaymentRequest
 
 from auth import (
     create_access_token,
@@ -113,24 +111,17 @@ def get_my_profile(current=Depends(get_current_user)):
     }
 
 
-class FarePaymentRequest(BaseModel):
-    card_uid: str = Field(min_length=1, max_length=32)
-    operator_id: int = Field(gt=0)
-    amount: Decimal = Field(gt=0, max_digits=12, decimal_places=2)
-    request_id: UUID
-
-
 @app.get("/")
 def read_root():
     return {"message": "NFC Fare Collection API is running"}
 
 
 @app.post("/payments")
-def create_payment(payment: FarePaymentRequest, db: Session = Depends(get_db)):
+def create_payment(payment: FarePaymentRequest, current=Depends(require_operator), db: Session = Depends(get_db)):
     return pay_fare(
         db=db,
         card_uid=payment.card_uid,
-        operator_id=payment.operator_id,
+        operator_id=current["id"],
         amount=payment.amount,
         request_id=str(payment.request_id),
     )
