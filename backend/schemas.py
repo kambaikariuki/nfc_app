@@ -17,3 +17,7 @@ class FarePaymentRequest(BaseModel):
     card_uid: str = Field(min_length=1, max_length=32)
     amount: Decimal = Field(gt=0, max_digits=12, decimal_places=2)
     request_id: UUID
+
+
+class LinkCardRequest(BaseModel):
+    uid: str = Field(min_length=1, max_length=32)

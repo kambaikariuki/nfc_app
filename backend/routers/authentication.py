@@ -19,7 +19,7 @@ router = APIRouter(
 def register_passenger(data: PassengerRegister, db: Session = Depends(get_db)):
     passenger = Passenger(
         full_name = data.full_name,
-        email = str(data.email).lower,
+        email = str(data.email).lower(),
         password_hash = password_hasher.hash(data.password)
     )
 
