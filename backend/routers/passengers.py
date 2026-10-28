@@ -67,16 +67,26 @@ def get_passenger_transactions(current=Depends(require_passenger), db: Session =
         for tx in transactions
     ]
 
-@router.post("/cards")
+@router.post("/cards/register")
 def link_nfc_card(card_data: LinkCardRequest, current: dict = Depends(require_passenger), db: Session = Depends(get_db)):
     uid = card_data.uid.strip().upper()
 
     existing_card = db.scalar(
-        select(NfcCard).where(NfcCard.uid == uid)
+        select(NfcCard).where(
+            NfcCard.uid == uid            
+        )
     )
-
     if existing_card:
-        raise HTTPException(409, "This NFC card is already registered")
+        raise HTTPException(409, "This NFC card is already registered and in use.")
+
+    duplicate_card = db.scalar(
+        select(NfcCard).where(
+            NfcCard.passenger_id == current["id"],
+            NfcCard.is_active.is_(True)            
+        ))
+
+    if duplicate_card:
+        raise HTTPException(409, "You already have an active card. Deactivate it before registering a replacement.")
 
     card = NfcCard(
         uid=uid,
@@ -96,3 +106,46 @@ def link_nfc_card(card_data: LinkCardRequest, current: dict = Depends(require_pa
         "message": "NFC card linked successfully",
         "uid": card.uid
     }
+
+@router.get("/cards/me")
+def get_card(current: dict = Depends(require_passenger), db: Session = Depends(get_db)):
+    cards = db.scalars(select(NfcCard).where(
+            NfcCard.passenger_id == current["id"]
+        )).all()
+
+    if cards is None:
+        raise HTTPException(404, "Card account not found")
+
+    return [
+        {
+            "card_uid": card.uid,
+            "is_active": card.is_active
+        }
+        for card in cards
+    ]
+    
+@router.delete("/cards/delete")
+def delete_card(current: dict = Depends(require_passenger), db: Session = Depends(get_db)):
+    card = db.scalar(select(NfcCard).where(
+        NfcCard.passenger_id == current["id"]
+    ))
+
+    
+
+    if not card:
+        raise HTTPException(404, "Card not found.")
+
+    try:
+        card.is_active = False
+        db.commit()
+
+        return {
+            "message": "Card deactivated successfully",
+            "card_uid": card.uid,
+            "is_active": card.is_active
+        }
+
+    except Exception:
+        db.rollback()
+        raise HTTPException(500, "Failed to deactivate card.")
+    

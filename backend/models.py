@@ -9,6 +9,8 @@ from sqlalchemy import (
     String,
     UniqueConstraint,
     func,
+    Index, 
+    text
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -60,10 +62,10 @@ class NfcCard(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     uid: Mapped[str] = mapped_column(
-        String(32), unique=True, index=True
+        String(32), unique=True, index=True, nullable=False
     )
     passenger_id: Mapped[int] = mapped_column(
-        ForeignKey("passengers.id")
+        ForeignKey("passengers.id"), nullable=False
     )
     is_active: Mapped[bool] = mapped_column(
         Boolean, default=True
@@ -74,6 +76,14 @@ class NfcCard(Base):
 
     passenger: Mapped["Passenger"] = relationship(
         back_populates="cards"
+    )
+    __table_args__ = (
+        Index(
+            "uq_nfc_cards_one_active_per_passenger",
+            "passenger_id",
+            unique=True,
+            postgresql_where=text("is_active = true"),
+        ),
     )
 
 
