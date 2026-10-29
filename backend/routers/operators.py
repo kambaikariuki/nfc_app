@@ -12,7 +12,7 @@ router = APIRouter(
     tags=["Operators"]
 )
 
-@router.get("/operators/me/wallet")
+@router.get("/wallet")
 def get_operator_wallet(current=Depends(require_operator), db: Session = Depends(get_db)):
     operator_id = current["id"]
     wallet = db.scalar(
@@ -30,7 +30,7 @@ def get_operator_wallet(current=Depends(require_operator), db: Session = Depends
         "is_active": wallet.is_active,
     }
 
-@router.get("/operators/me/transactions")
+@router.get("/transactions")
 def get_operator_transactions(current=Depends(require_operator), db: Session = Depends(get_db)):
     operator_id = current["id"]
     wallet = db.scalar(

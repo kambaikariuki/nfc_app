@@ -93,8 +93,6 @@ def get_current_user(
     if user is None:
         raise credentials_error
 
-    db.rollback()
-
     return {"id": user.id, "role": role, "user": user}
 
 

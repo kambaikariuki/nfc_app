@@ -1,6 +1,4 @@
-from fastapi import Depends, FastAPI, HTTPException, status
-from pydantic import BaseModel, Field
-from sqlalchemy.orm import Session
+from fastapi import FastAPI
 
 from routers import payments, authentication, passengers, operators, cards
 
