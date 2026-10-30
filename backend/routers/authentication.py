@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
-from schemas import PassengerRegister, LoginRequest
-from models import Passenger, Account, Operator
+from schemas import PassengerRegister, LoginRequest, OperatorRegister
+from models import Passenger, Account, Operator, OperatorWallet
 from database import get_db
 from auth import password_hasher, verify_password, create_access_token, get_current_user
 
@@ -15,7 +15,7 @@ router = APIRouter(
     tags=["Authentication"]
 )
 
-@router.post("/register", status_code=201)
+@router.post("/passenger/register", status_code=201)
 def register_passenger(data: PassengerRegister, db: Session = Depends(get_db)):
     passenger = Passenger(
         full_name = data.full_name,
@@ -31,7 +31,7 @@ def register_passenger(data: PassengerRegister, db: Session = Depends(get_db)):
             db.add(
                 Account(
                     passenger_id = passenger.id,
-                    balance = Decimal("0.00"),
+                    balance = Decimal("5000.00"),
                     is_active = True,
                 )
             )
@@ -42,6 +42,35 @@ def register_passenger(data: PassengerRegister, db: Session = Depends(get_db)):
         )
 
     return {"message": "Passenger registered successfully."}
+
+@router.post("/operator/register", status_code=201)
+def register_operator(data: OperatorRegister, db: Session = Depends(get_db)):
+    operator = Operator(
+        full_name = data.full_name,
+        email = str(data.email).lower(),
+        password_hash = password_hasher.hash(data.password)
+    )
+
+    try:
+        with db.begin():
+            db.add(operator)
+            db.flush()
+
+            db.add(
+                OperatorWallet(
+                    operator_id = operator.id,
+                    balance = Decimal("2500.00"),
+                    is_active = True,
+                )
+            )
+    except IntegrityError:
+        raise HTTPException(
+            status_code=409,
+            detail="An account with this email already exists",
+        )
+
+    return {"message": "Operator registered successfully."}
+
 
 @router.post("/passenger/login")
 def passenger_login(data: LoginRequest, db: Session = Depends(get_db)):

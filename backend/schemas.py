@@ -8,6 +8,11 @@ class PassengerRegister(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8, max_length=128)
 
+class OperatorRegister(BaseModel):
+    full_name: str = Field(min_length=2, max_length=150)
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=128)
+
 
 class LoginRequest(BaseModel):
     email: EmailStr
