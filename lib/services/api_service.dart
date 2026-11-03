@@ -2,11 +2,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  // Android emulator:
-  static const String baseUrl =  "http://127.0.0.1:8000";
+// Change to deployed address on render https://nfc-app-p9pi.onrender.com
 
-  // For a physical phone, replace the address above with your
-  // computer's local network IP, e.g. http://192.168.1.10:8000
+  static const String baseUrl =  "http://localhost:8000";
 
   static Future<Map<String, dynamic>> testConnection() async {
     final response = await http

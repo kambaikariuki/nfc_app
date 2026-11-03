@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:nfc_app/services/auth_service.dart';
+import 'auth/log_in.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
 
   static const List<Map<String, dynamic>> _settingsItems = [
     {
@@ -29,6 +37,20 @@ class ProfileScreen extends StatelessWidget {
       ],
     },
   ];
+
+  Future<void> _logout() async {
+    await AuthService.logout();
+
+    if (!mounted) return;
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const LoginPage(),
+      ),
+      (route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -231,7 +253,7 @@ class ProfileScreen extends StatelessWidget {
               child: SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: _logout,
                   icon: const Icon(Icons.logout, color: Color(0xFFE53935)),
                   label: const Text(
                     'Log Out',
@@ -256,6 +278,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 }
+
 
 class _StatChip extends StatelessWidget {
   final String label;

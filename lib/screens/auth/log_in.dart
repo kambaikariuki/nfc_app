@@ -2,6 +2,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:nfc_app/screens/auth/sign_up.dart';
 import 'package:nfc_app/services/auth_service.dart';
+import 'package:nfc_app/screens/operator_home.dart';
+import 'package:nfc_app/screens/passenger_home.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -48,15 +50,24 @@ class _LoginPageState extends State<LoginPage> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('$_selectedRole login successful!'),
-        ),
-      );
-      
-
-      // The token is now available through AuthService.accessToken.
-      // We'll navigate to the appropriate home screen next.
+      if (_selectedRole == 'Passenger') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const PassengerHome(),
+          ),
+        );
+      } else if (_selectedRole == 'Operator') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const OperatorHome(),
+          ),
+        );
+      } else {
+          throw Exception('Invalid user role');
+        }
+            
     } catch (e) {
       if (!mounted) return;
 

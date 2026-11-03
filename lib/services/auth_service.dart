@@ -1,19 +1,18 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   static const String baseUrl = 'http://localhost:8000';
 
-  // Available while the app is running.
   static String? accessToken;
 
-    
   static Future<Map<String, dynamic>> login({
     required String role,
     required String email,
     required String password,
   }) async {
-    final endpoint = role == 'Passenger'
+    final endpoint = role.toLowerCase() == 'passenger'
         ? '/auth/passenger/login'
         : '/auth/operator/login';
 
@@ -32,6 +31,7 @@ class AuthService {
         .timeout(const Duration(seconds: 15));
 
     final Map<String, dynamic> data;
+
     try {
       data = jsonDecode(response.body) as Map<String, dynamic>;
     } catch (_) {
@@ -46,16 +46,28 @@ class AuthService {
       }
 
       accessToken = token;
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('access_token', token);
+      await prefs.setString('user_role', role.toLowerCase());
+
       return data;
     }
 
     final detail = data['detail'];
+
     throw Exception(
       detail is String ? detail : 'Login failed (${response.statusCode}).',
     );
   }
 
-  
+  // Restore token when the app starts.
+  static Future<void> loadToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    accessToken = prefs.getString('access_token');
+  }
+
+  // Get current authenticated user.
   static Future<Map<String, dynamic>> getCurrentUser() async {
     final token = accessToken;
 
@@ -76,7 +88,7 @@ class AuthService {
     }
 
     if (response.statusCode == 401) {
-      accessToken = null;
+      await logout();
       throw Exception('Session expired. Please log in again.');
     }
 
@@ -85,4 +97,13 @@ class AuthService {
     );
   }
 
+  // Logout and clear saved session.
+  static Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.remove('access_token');
+    await prefs.remove('user_role');
+
+    accessToken = null;
+  }
 }

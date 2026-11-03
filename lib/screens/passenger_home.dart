@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'transactions.dart';
 import 'profile.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class PassengerHome extends StatefulWidget {
+  const PassengerHome({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<PassengerHome> createState() => _PassengerHomeState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _PassengerHomeState extends State<PassengerHome> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = const [
@@ -167,7 +167,8 @@ class _HomePage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       _QuickAction(icon: Icons.arrow_upward, label: 'Top Up'),
-                      // _QuickAction(icon: Icons.arrow_downward, label: 'Receive'),
+                      _QuickAction(icon: Icons.arrow_downward, label: 'Prompt Payment'),
+                      _QuickAction(icon: Icons.arrow_downward, label: 'Withdraw'),
                       _QuickAction(icon: Icons.swap_horiz, label: 'Link Card'),
                       // _QuickAction(icon: Icons.more_horiz, label: 'More'),
                     ],
