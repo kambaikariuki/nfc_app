@@ -44,7 +44,7 @@ def get_operator_transactions(current=Depends(require_operator), db: Session = D
 
     transactions = db.scalars(
         select(Transaction)
-        .where(Transaction.account_id == wallet.id)
+        .where(Transaction.operator_id == operator_id)
         .order_by(Transaction.created_at.desc())
         .limit(20)
     ).all()

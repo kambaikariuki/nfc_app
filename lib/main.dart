@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:nfc_app/screens/auth/log_in.dart';
-import 'package:nfc_app/screens/connection_test_screen.dart';
 import 'package:nfc_app/screens/splash_screen.dart';
 
 void main() {

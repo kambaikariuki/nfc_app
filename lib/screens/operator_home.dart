@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nfc_app/screens/enter_amount.dart';
 import 'transactions.dart';
 import 'profile.dart';
 
@@ -166,11 +167,15 @@ class _HomePage extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _QuickAction(icon: Icons.arrow_upward, label: 'Top Up'),
-                      _QuickAction(icon: Icons.arrow_downward, label: 'Prompt Payment'),
+                      _QuickAction(
+                        icon: Icons.arrow_upward,
+                        label: 'Prompt Payment',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const EnterAmountScreen()));
+                        },),
                       _QuickAction(icon: Icons.arrow_downward, label: 'Withdraw'),
-                      _QuickAction(icon: Icons.swap_horiz, label: 'Link Card'),
-                      // _QuickAction(icon: Icons.more_horiz, label: 'More'),
                     ],
                   ),
                 ],
@@ -194,7 +199,11 @@ class _HomePage extends StatelessWidget {
                     ),
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const TransactionsScreen()));
+                    },
                     child: const Text(
                       'See all',
                       style: TextStyle(color: Color(0xFF6C63FF)),
@@ -230,28 +239,36 @@ class _HomePage extends StatelessWidget {
 class _QuickAction extends StatelessWidget {
   final IconData icon;
   final String label;
+  final VoidCallback? onTap;
 
-  const _QuickAction({required this.icon, required this.label});
+  const _QuickAction({
+    required this.icon,
+    required this.label,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(14),
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(icon, color: Colors.white, size: 22),
           ),
-          child: Icon(icon, color: Colors.white, size: 22),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          label,
-          style: const TextStyle(color: Colors.white70, fontSize: 12),
-        ),
-      ],
+          const SizedBox(height: 6),
+          Text(
+            label,
+            style: const TextStyle(color: Colors.white70, fontSize: 12),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -333,58 +350,6 @@ class _TransactionTile extends StatelessWidget {
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-// ── TRANSACTIONS TAB ───────────────────────────────────────────────────────────
-
-class _TransactionsPage extends StatelessWidget {
-  const _TransactionsPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF6C63FF),
-        centerTitle: true,
-        title: const Text(
-          'Transactions',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-      ),
-      body: const Center(
-        child: Text(
-          'All Transactions',
-          style: TextStyle(fontSize: 18, color: Colors.grey),
-        ),
-      ),
-    );
-  }
-}
-
-// ── PROFILE TAB ────────────────────────────────────────────────────────────────
-
-class _ProfilePage extends StatelessWidget {
-  const _ProfilePage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF6C63FF),
-        centerTitle: true,
-        title: const Text(
-          'Profile',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-      ),
-      body: const Center(
-        child: Text(
-          'Profile Page',
-          style: TextStyle(fontSize: 18, color: Colors.grey),
-        ),
       ),
     );
   }
