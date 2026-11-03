@@ -7,6 +7,7 @@ class AuthService {
 
   static String? accessToken;
 
+// Log in
   static Future<Map<String, dynamic>> login({
     required String role,
     required String email,
@@ -60,6 +61,40 @@ class AuthService {
       detail is String ? detail : 'Login failed (${response.statusCode}).',
     );
   }
+
+static Future<Map<String, dynamic>> register({
+  required String role,
+  required String fullName,
+  required String email,
+  required String password,
+}) async {
+  final endpoint = role == 'Passenger'
+      ? '/auth/passenger/register'
+      : '/auth/operator/register';
+
+  final response = await http.post(
+    Uri.parse('$baseUrl$endpoint'),
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+    body: jsonEncode({
+      'full_name': fullName.trim(),
+      'email': email.trim().toLowerCase(),
+      'password': password,
+    }),
+  );
+
+  final data = jsonDecode(response.body) as Map<String, dynamic>;
+
+  if (response.statusCode == 200 || response.statusCode == 201) {
+    return data;
+  }
+
+  throw Exception(
+    data['detail'] ?? 'Registration failed.',
+  );
+}
 
   // Restore token when the app starts.
   static Future<void> loadToken() async {

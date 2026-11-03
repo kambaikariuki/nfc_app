@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nfc_app/screens/auth/log_in.dart';
 import 'package:nfc_app/screens/splash_screen.dart'; 
+import 'package:nfc_app/services/auth_service.dart';
+
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
 
@@ -110,30 +112,52 @@ class _SignUpPageState extends State<SignUpPage>
     );
   }
 
-  void _signUp() {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
+  Future<void> _signUp() async {
+  if (!_formKey.currentState!.validate()) return;
 
-      final name = _nameController.text.trim();
-      final email = _emailController.text.trim();
-      final password = _passwordController.text;
+  setState(() => _isLoading = true);
 
-      // TODO: send to backend with _selectedRole
-      debugPrint('Name: $name');
-      debugPrint('Email: $email');
-      debugPrint('Password: $password');
-      debugPrint('Role: $_selectedRole');
+  try {
+    await AuthService.register(
+      role: _selectedRole,
+      fullName: _nameController.text,
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
 
-      Future.delayed(const Duration(seconds: 1), () {
-        if (mounted) {
-          setState(() => _isLoading = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Account created successfully!')),
-          );
-        }
-      });
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '${_selectedRole == 'passenger' ? 'Passenger' : 'Operator'} account created successfully!',
+        ),
+      ),
+    );
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const LoginPage(),
+      ),
+    );
+  } catch (e) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          e.toString().replaceFirst('Exception: ', ''),
+        ),
+        backgroundColor: Colors.red,
+      ),
+    );
+  } finally {
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
   }
+}
 
   @override
   Widget build(BuildContext context) {
