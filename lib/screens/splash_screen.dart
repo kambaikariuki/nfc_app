@@ -66,7 +66,7 @@ class _SplashScreenState extends State<SplashScreen>
           Image.asset('assets/nganya.jpg', fit: BoxFit.cover),
 
           // Solid overlay
-          Container(color: Colors.black.withValues(alpha: 0.55)),
+          Container(color: Colors.black.withOpacity(0.55)),
 
           // Content
           SafeArea(
@@ -132,7 +132,7 @@ class _SplashScreenState extends State<SplashScreen>
                               onPressed: () {
                                 Navigator.of(context).pushReplacement(
                                   MaterialPageRoute(
-                                    builder: (_) => LoginPage(),
+                                    builder: (_) => const LoginPage(),
                                   ),
                                 );
                               },
@@ -161,7 +161,7 @@ class _SplashScreenState extends State<SplashScreen>
                               onPressed: () {
                                 Navigator.of(context).pushReplacement(
                                   MaterialPageRoute(
-                                    builder: (_) => SignUpPage(),
+                                    builder: (_) => const SignUpPage(),
                                   ),
                                 );
                               },

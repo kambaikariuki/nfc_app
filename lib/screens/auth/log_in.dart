@@ -135,7 +135,7 @@ class _LoginPageState extends State<LoginPage>
         borderSide: const BorderSide(color: Colors.white, width: 1.5),
       ),
       filled: true,
-      fillColor: Colors.white.withValues(alpha: 0.08),
+      fillColor: Colors.white.withOpacity(0.08),
     );
   }
 
@@ -164,7 +164,7 @@ class _LoginPageState extends State<LoginPage>
           Image.asset('assets/nganya_3.jpg', fit: BoxFit.cover),
 
           // Solid dark overlay
-          Container(color: Colors.black.withValues(alpha: 0.55)),
+          Container(color: Colors.black.withOpacity(0.55)),
 
           // Scrollable content
           SafeArea(

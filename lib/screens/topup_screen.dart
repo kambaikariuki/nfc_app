@@ -104,7 +104,7 @@ class _TopUpScreenState extends State<TopUpScreen>
         borderSide: const BorderSide(color: Colors.white, width: 1.5),
       ),
       filled: true,
-      fillColor: Colors.white.withValues(alpha: 0.08),
+      fillColor: Colors.white.withOpacity(0.08),
     );
   }
 
@@ -194,7 +194,7 @@ class _TopUpScreenState extends State<TopUpScreen>
                         horizontal: 24,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.08),
+                        color: Colors.white.withOpacity(0.08),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(color: Colors.white12),
                       ),
@@ -284,11 +284,11 @@ class _TopUpScreenState extends State<TopUpScreen>
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
                             foregroundColor: Colors.black,
-                            disabledBackgroundColor: Colors.white.withValues(
-                              alpha: 0.2,
+                            disabledBackgroundColor: Colors.white.withOpacity(
+                              0.2,
                             ),
-                            disabledForegroundColor: Colors.white.withValues(
-                              alpha: 0.4,
+                            disabledForegroundColor: Colors.white.withOpacity(
+                              0.4,
                             ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),

@@ -236,8 +236,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   width: 38,
                                   height: 38,
                                   decoration: BoxDecoration(
-                                    color: (item['color'] as Color).withValues(
-                                      alpha: 0.12,
+                                    color: (item['color'] as Color).withOpacity(
+                                      0.12,
                                     ),
                                     borderRadius: BorderRadius.circular(10),
                                   ),

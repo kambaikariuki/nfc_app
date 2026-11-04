@@ -89,7 +89,7 @@ class _LinkCardScreenState extends State<LinkCardScreen>
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
-              color: Colors.white.withValues(alpha: opacity * 0.5),
+              color: Colors.white.withOpacity(opacity * 0.5),
               width: 1.5,
             ),
           ),
@@ -186,7 +186,7 @@ class _LinkCardScreenState extends State<LinkCardScreen>
                             height: 96,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.white.withValues(alpha: 0.1),
+                              color: Colors.white.withOpacity(0.1),
                               border: Border.all(
                                 color: Colors.white38,
                                 width: 1.5,

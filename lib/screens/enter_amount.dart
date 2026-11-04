@@ -204,7 +204,7 @@ class _EnterAmountScreenState extends State<EnterAmountScreen>
                           decoration: InputDecoration(
                             hintText: '0.00',
                             hintStyle: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.25),
+                              color: Colors.white.withOpacity(0.25),
                               fontSize: 36,
                               fontWeight: FontWeight.w700,
                             ),
@@ -234,7 +234,7 @@ class _EnterAmountScreenState extends State<EnterAmountScreen>
                               ),
                             ),
                             filled: true,
-                            fillColor: Colors.white.withValues(alpha: 0.08),
+                            fillColor: Colors.white.withOpacity(0.08),
                             contentPadding: const EdgeInsets.symmetric(
                               vertical: 24,
                               horizontal: 16,
@@ -261,11 +261,11 @@ class _EnterAmountScreenState extends State<EnterAmountScreen>
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
                             foregroundColor: Colors.black,
-                            disabledBackgroundColor: Colors.white.withValues(
-                              alpha: 0.2,
+                            disabledBackgroundColor: Colors.white.withOpacity(
+                              0.2
                             ),
-                            disabledForegroundColor: Colors.white.withValues(
-                              alpha: 0.4,
+                            disabledForegroundColor: Colors.white.withOpacity(
+                              0.4,
                             ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),

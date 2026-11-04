@@ -112,7 +112,7 @@ class _SignUpPageState extends State<SignUpPage>
       ),
       errorStyle: const TextStyle(color: Colors.redAccent),
       filled: true,
-      fillColor: Colors.white.withValues(alpha: 0.08),
+      fillColor: Colors.white.withOpacity(0.08),
     );
   }
 
@@ -183,7 +183,7 @@ class _SignUpPageState extends State<SignUpPage>
           Image.asset('assets/nganya_4.jpg', fit: BoxFit.cover),
 
           // Solid dark overlay
-          Container(color: Colors.black.withValues(alpha: 0.55)),
+          Container(color: Colors.black.withOpacity(0.55)),
 
           // Scrollable content
           SafeArea(
@@ -263,8 +263,8 @@ class _SignUpPageState extends State<SignUpPage>
                                     decoration: BoxDecoration(
                                       color: isSelected
                                           ? Colors.white
-                                          : Colors.white.withValues(
-                                              alpha: 0.08,
+                                          : Colors.white.withOpacity(
+                                              0.08,
                                             ),
                                       borderRadius: BorderRadius.circular(10),
                                       border: Border.all(
