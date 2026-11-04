@@ -1,0 +1,22 @@
+{
+  "project": "nfc_app",
+  "platform": "ios",
+  "github": {
+    "owner": "kambaikariuki",
+    "repo": "nfc_app"
+  },
+  "provider": "github",
+  "codemagic": {},
+  "bitrise": {},
+  "ios": {
+    "path": "ios",
+    "bundleId": "com.example.nfcApp"
+  },
+  "flutter": {
+    "version": "3.47.7",
+    "watch": {}
+  },
+  "reactNative": {},
+  "kmp": {},
+  "mobai": {}
+}
