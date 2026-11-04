@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:nfc_app/screens/nfc_read_screen.dart'; // adjust path
+import 'package:nfc_app/screens/nfc_read_screen.dart';
+import 'package:nfc_app/screens/topup_screen.dart';
+import 'package:nfc_app/screens/withdraw_screen.dart';
+
+enum AmountScreenType { topUp, withdraw, promptPayment }
 
 class EnterAmountScreen extends StatefulWidget {
-  const EnterAmountScreen({super.key});
+  final AmountScreenType type;
+  const EnterAmountScreen({super.key, required this.type});
 
   @override
   State<EnterAmountScreen> createState() => _EnterAmountScreenState();
@@ -62,7 +67,11 @@ class _EnterAmountScreenState extends State<EnterAmountScreen>
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => NfcReadScreen(amount: amount),
+        builder: (_) => switch (widget.type) {
+          AmountScreenType.topUp => TopUpScreen(amount: amount),
+          AmountScreenType.withdraw => WithdrawScreen(amount: amount),
+          AmountScreenType.promptPayment => NfcReadScreen(amount: amount),
+        },
       ),
     );
   }
@@ -82,19 +91,19 @@ class _EnterAmountScreenState extends State<EnterAmountScreen>
       body: Stack(
         fit: StackFit.expand,
         children: [
-           Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF0A0A2E),
-            Color(0xFF1A1A4E),
-            Color(0xFF0D2137),
-          ],
-        ),
-      ),
-    ),
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF0A0A2E),
+                  Color(0xFF1A1A4E),
+                  Color(0xFF0D2137),
+                ],
+              ),
+            ),
+          ),
           // Content
           SafeArea(
             child: Padding(
@@ -107,17 +116,29 @@ class _EnterAmountScreenState extends State<EnterAmountScreen>
                   // Title block
                   FadeTransition(
                     opacity: _titleFade,
-                    child: const Column(
+                    child: Column(
+                      // remove const — switch isn't const
                       children: [
                         Icon(
-                          Icons.contactless_rounded,
+                          switch (widget.type) {
+                            AmountScreenType.topUp =>
+                              Icons.account_balance_wallet_outlined,
+                            AmountScreenType.withdraw =>
+                              Icons.send_to_mobile_outlined,
+                            AmountScreenType.promptPayment =>
+                              Icons.contactless_rounded,
+                          },
                           color: Colors.white,
-                          size: 48,
+                          size: 44,
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 16),
                         Text(
-                          'Enter Amount',
-                          style: TextStyle(
+                          switch (widget.type) {
+                            AmountScreenType.topUp => 'Top Up',
+                            AmountScreenType.withdraw => 'Withdraw',
+                            AmountScreenType.promptPayment => 'Prompt Payment',
+                          },
+                          style: const TextStyle(
                             fontFamily: 'Poppins',
                             fontSize: 32,
                             fontWeight: FontWeight.w800,
@@ -125,7 +146,22 @@ class _EnterAmountScreenState extends State<EnterAmountScreen>
                             letterSpacing: 1.0,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
+                        Text(
+                          switch (widget.type) {
+                            AmountScreenType.topUp => 'Enter amount to top up',
+                            AmountScreenType.withdraw =>
+                              'How much would you like to withdraw?',
+                            AmountScreenType.promptPayment =>
+                              'How much should the passenger pay?',
+                          },
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 15,
+                            color: Colors.white60,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -150,10 +186,12 @@ class _EnterAmountScreenState extends State<EnterAmountScreen>
                         TextField(
                           controller: _amountController,
                           keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true),
+                            decimal: true,
+                          ),
                           inputFormatters: [
                             FilteringTextInputFormatter.allow(
-                                RegExp(r'^\d+\.?\d{0,2}')),
+                              RegExp(r'^\d+\.?\d{0,2}'),
+                            ),
                           ],
                           style: const TextStyle(
                             color: Colors.white,
@@ -184,18 +222,23 @@ class _EnterAmountScreenState extends State<EnterAmountScreen>
                             prefixIconConstraints: const BoxConstraints(),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
-                              borderSide:
-                                  const BorderSide(color: Colors.white24),
+                              borderSide: const BorderSide(
+                                color: Colors.white24,
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
                               borderSide: const BorderSide(
-                                  color: Colors.white, width: 1.5),
+                                color: Colors.white,
+                                width: 1.5,
+                              ),
                             ),
                             filled: true,
                             fillColor: Colors.white.withValues(alpha: 0.08),
                             contentPadding: const EdgeInsets.symmetric(
-                                vertical: 24, horizontal: 16),
+                              vertical: 24,
+                              horizontal: 16,
+                            ),
                           ),
                           autofocus: true,
                         ),
@@ -218,10 +261,12 @@ class _EnterAmountScreenState extends State<EnterAmountScreen>
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
                             foregroundColor: Colors.black,
-                            disabledBackgroundColor:
-                                Colors.white.withValues(alpha: 0.2),
-                            disabledForegroundColor:
-                                Colors.white.withValues(alpha: 0.4),
+                            disabledBackgroundColor: Colors.white.withValues(
+                              alpha: 0.2,
+                            ),
+                            disabledForegroundColor: Colors.white.withValues(
+                              alpha: 0.4,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),

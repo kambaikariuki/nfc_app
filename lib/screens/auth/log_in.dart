@@ -4,7 +4,7 @@ import 'package:nfc_app/screens/auth/sign_up.dart';
 import 'package:nfc_app/services/auth_service.dart';
 import 'package:nfc_app/screens/operator_home.dart';
 import 'package:nfc_app/screens/passenger_home.dart';
-import 'package:nfc_app/screens/splash_screen.dart'; 
+import 'package:nfc_app/screens/splash_screen.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -144,32 +144,27 @@ class _LoginPageState extends State<LoginPage>
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-    backgroundColor: Colors.transparent,
-    elevation: 0,
-    leading: IconButton(
-      icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-      onPressed: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const SplashScreen()),
-        );
-      },
-    ),
-  ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const SplashScreen()),
+            );
+          },
+        ),
+      ),
 
       body: Stack(
         fit: StackFit.expand,
         children: [
           // Background image
-          Image.asset(
-            'assets/nganya_3.jpg',
-            fit: BoxFit.cover,
-          ),
+          Image.asset('assets/nganya_3.jpg', fit: BoxFit.cover),
 
           // Solid dark overlay
-          Container(
-            color: Colors.black.withValues(alpha: 0.55),
-          ),
+          Container(color: Colors.black.withValues(alpha: 0.55)),
 
           // Scrollable content
           SafeArea(
@@ -310,13 +305,13 @@ class _LoginPageState extends State<LoginPage>
                       opacity: _footerFade,
                       child: Column(
                         children: [
-                          const Text(
-                            'Forgot Password?',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.white60,
-                            ),
-                          ),
+                          // const Text(
+                          //   'Forgot Password?',
+                          //   style: TextStyle(
+                          //     fontSize: 14,
+                          //     color: Colors.white60,
+                          //   ),
+                          // ),
                           const SizedBox(height: 12),
                           RichText(
                             textAlign: TextAlign.center,

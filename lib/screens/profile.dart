@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nfc_app/services/auth_service.dart';
+
 import 'auth/log_in.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -10,30 +11,61 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-
   static const List<Map<String, dynamic>> _settingsItems = [
     {
       'section': 'Account',
       'items': [
-        {'icon': Icons.person_outline, 'label': 'Edit Profile', 'color': Color(0xFF6C63FF)},
-        {'icon': Icons.lock_outline, 'label': 'Change Password', 'color': Color(0xFF6C63FF)},
-        {'icon': Icons.credit_card_outlined, 'label': 'Linked Cards', 'color': Color(0xFF6C63FF)},
+        {
+          'icon': Icons.person_outline,
+          'label': 'Edit Profile',
+          'color': Color(0xFF6C63FF),
+        },
+        {
+          'icon': Icons.lock_outline,
+          'label': 'Change Password',
+          'color': Color(0xFF6C63FF),
+        },
+        {
+          'icon': Icons.credit_card_outlined,
+          'label': 'Linked Cards',
+          'color': Color(0xFF6C63FF),
+        },
       ],
     },
     {
       'section': 'Preferences',
       'items': [
-        {'icon': Icons.notifications_outlined, 'label': 'Notifications', 'color': Color(0xFF43A047)},
+        {
+          'icon': Icons.notifications_outlined,
+          'label': 'Notifications',
+          'color': Color(0xFF43A047),
+        },
         // {'icon': Icons.language_outlined, 'label': 'Language', 'color': Color(0xFF43A047)},
-        {'icon': Icons.dark_mode_outlined, 'label': 'Appearance', 'color': Color(0xFF43A047)},
+        {
+          'icon': Icons.dark_mode_outlined,
+          'label': 'Appearance',
+          'color': Color(0xFF43A047),
+        },
       ],
     },
     {
       'section': 'Support',
       'items': [
-        {'icon': Icons.help_outline, 'label': 'Help & Support', 'color': Color(0xFFFF9800)},
-        {'icon': Icons.privacy_tip_outlined, 'label': 'Privacy Policy', 'color': Color(0xFFFF9800)},
-        {'icon': Icons.info_outline, 'label': 'About', 'color': Color(0xFFFF9800)},
+        {
+          'icon': Icons.help_outline,
+          'label': 'Help & Support',
+          'color': Color(0xFFFF9800),
+        },
+        {
+          'icon': Icons.privacy_tip_outlined,
+          'label': 'Privacy Policy',
+          'color': Color(0xFFFF9800),
+        },
+        {
+          'icon': Icons.info_outline,
+          'label': 'About',
+          'color': Color(0xFFFF9800),
+        },
       ],
     },
   ];
@@ -45,9 +77,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(
-        builder: (context) => const LoginPage(),
-      ),
+      MaterialPageRoute(builder: (context) => const LoginPage()),
       (route) => false,
     );
   }
@@ -139,10 +169,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 4),
                   const Text(
                     'johndoe@email.com',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                   const SizedBox(height: 20),
                   // Stats row
@@ -196,7 +223,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ],
                       ),
                       child: Column(
-                        children: (section['items'] as List).map<Widget>((item) {
+                        children: (section['items'] as List).map<Widget>((
+                          item,
+                        ) {
                           final isLast =
                               item == (section['items'] as List).last;
                           return Column(
@@ -207,8 +236,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   width: 38,
                                   height: 38,
                                   decoration: BoxDecoration(
-                                    color: (item['color'] as Color)
-                                        .withValues(alpha: 0.12),
+                                    color: (item['color'] as Color).withValues(
+                                      alpha: 0.12,
+                                    ),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Icon(

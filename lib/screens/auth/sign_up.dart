@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nfc_app/screens/auth/log_in.dart';
-import 'package:nfc_app/screens/splash_screen.dart'; 
+import 'package:nfc_app/screens/splash_screen.dart';
 import 'package:nfc_app/services/auth_service.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -79,7 +79,11 @@ class _SignUpPageState extends State<SignUpPage>
     super.dispose();
   }
 
-  InputDecoration _inputDecoration(String label, {Widget? prefixIcon, Widget? suffixIcon}) {
+  InputDecoration _inputDecoration(
+    String label, {
+    Widget? prefixIcon,
+    Widget? suffixIcon,
+  }) {
     return InputDecoration(
       labelText: label,
       labelStyle: const TextStyle(color: Colors.white70),
@@ -113,51 +117,47 @@ class _SignUpPageState extends State<SignUpPage>
   }
 
   Future<void> _signUp() async {
-  if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) return;
 
-  setState(() => _isLoading = true);
+    setState(() => _isLoading = true);
 
-  try {
-    await AuthService.register(
-      role: _selectedRole,
-      fullName: _nameController.text,
-      email: _emailController.text,
-      password: _passwordController.text,
-    );
+    try {
+      await AuthService.register(
+        role: _selectedRole,
+        fullName: _nameController.text,
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '${_selectedRole == 'passenger' ? 'Passenger' : 'Operator'} account created successfully!',
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${_selectedRole == 'passenger' ? 'Passenger' : 'Operator'} account created successfully!',
+          ),
         ),
-      ),
-    );
+      );
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const LoginPage(),
-      ),
-    );
-  } catch (e) {
-    if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginPage()),
+      );
+    } catch (e) {
+      if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          e.toString().replaceFirst('Exception: ', ''),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: Colors.red,
         ),
-        backgroundColor: Colors.red,
-      ),
-    );
-  } finally {
-    if (mounted) {
-      setState(() => _isLoading = false);
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -180,15 +180,10 @@ class _SignUpPageState extends State<SignUpPage>
         fit: StackFit.expand,
         children: [
           // Background image
-          Image.asset(
-            'assets/nganya_4.jpg',
-            fit: BoxFit.cover,
-          ),
+          Image.asset('assets/nganya_4.jpg', fit: BoxFit.cover),
 
           // Solid dark overlay
-          Container(
-            color: Colors.black.withValues(alpha: 0.55),
-          ),
+          Container(color: Colors.black.withValues(alpha: 0.55)),
 
           // Scrollable content
           SafeArea(
@@ -263,11 +258,14 @@ class _SignUpPageState extends State<SignUpPage>
                                       left: role == 'Operator' ? 8 : 0,
                                     ),
                                     padding: const EdgeInsets.symmetric(
-                                        vertical: 14),
+                                      vertical: 14,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: isSelected
                                           ? Colors.white
-                                          : Colors.white.withValues(alpha: 0.08),
+                                          : Colors.white.withValues(
+                                              alpha: 0.08,
+                                            ),
                                       borderRadius: BorderRadius.circular(10),
                                       border: Border.all(
                                         color: isSelected
@@ -356,7 +354,8 @@ class _SignUpPageState extends State<SignUpPage>
                                   color: Colors.white54,
                                 ),
                                 onPressed: () => setState(
-                                    () => _obscurePassword = !_obscurePassword),
+                                  () => _obscurePassword = !_obscurePassword,
+                                ),
                               ),
                             ),
                             validator: (value) {
@@ -386,9 +385,10 @@ class _SignUpPageState extends State<SignUpPage>
                                       : Icons.visibility,
                                   color: Colors.white54,
                                 ),
-                                onPressed: () => setState(() =>
-                                    _obscureConfirmPassword =
-                                        !_obscureConfirmPassword),
+                                onPressed: () => setState(
+                                  () => _obscureConfirmPassword =
+                                      !_obscureConfirmPassword,
+                                ),
                               ),
                             ),
                             validator: (value) {
@@ -461,7 +461,8 @@ class _SignUpPageState extends State<SignUpPage>
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (_) => const LoginPage()),
+                                  builder: (_) => const LoginPage(),
+                                ),
                               );
                             },
                             child: const Text(

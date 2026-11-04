@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
+
 import '../services/api_service.dart';
 
 class ConnectionTestScreen extends StatefulWidget {
   const ConnectionTestScreen({super.key});
 
   @override
-  State<ConnectionTestScreen> createState() =>
-      _ConnectionTestScreenState();
+  State<ConnectionTestScreen> createState() => _ConnectionTestScreenState();
 }
 
-class _ConnectionTestScreenState
-    extends State<ConnectionTestScreen> {
+class _ConnectionTestScreenState extends State<ConnectionTestScreen> {
   String message = 'Not connected yet';
   bool loading = false;
 
@@ -53,9 +52,7 @@ class _ConnectionTestScreenState
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: loading ? null : testConnection,
-                child: Text(
-                  loading ? 'Connecting...' : 'Test Connection',
-                ),
+                child: Text(loading ? 'Connecting...' : 'Test Connection'),
               ),
             ],
           ),

@@ -104,8 +104,7 @@ class _NfcReadScreenState extends State<NfcReadScreen>
 
   @override
   Widget build(BuildContext context) {
-    final formattedAmount =
-        'KES ${widget.amount.toStringAsFixed(2)}';
+    final formattedAmount = 'KES ${widget.amount.toStringAsFixed(2)}';
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -121,18 +120,18 @@ class _NfcReadScreenState extends State<NfcReadScreen>
         fit: StackFit.expand,
         children: [
           Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF0A0A2E),
-            Color(0xFF1A1A4E),
-            Color(0xFF0D2137),
-          ],
-        ),
-      ),
-    ),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF0A0A2E),
+                  Color(0xFF1A1A4E),
+                  Color(0xFF0D2137),
+                ],
+              ),
+            ),
+          ),
 
           SafeArea(
             child: Padding(
@@ -194,7 +193,9 @@ class _NfcReadScreenState extends State<NfcReadScreen>
                               shape: BoxShape.circle,
                               color: Colors.white.withValues(alpha: 0.1),
                               border: Border.all(
-                                  color: Colors.white38, width: 1.5),
+                                color: Colors.white38,
+                                width: 1.5,
+                              ),
                             ),
                             child: const Icon(
                               Icons.contactless_rounded,

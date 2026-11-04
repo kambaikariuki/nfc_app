@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -7,7 +8,7 @@ class AuthService {
 
   static String? accessToken;
 
-// Log in
+  // Log in
   static Future<Map<String, dynamic>> login({
     required String role,
     required String email,
@@ -62,39 +63,37 @@ class AuthService {
     );
   }
 
-static Future<Map<String, dynamic>> register({
-  required String role,
-  required String fullName,
-  required String email,
-  required String password,
-}) async {
-  final endpoint = role == 'Passenger'
-      ? '/auth/passenger/register'
-      : '/auth/operator/register';
+  static Future<Map<String, dynamic>> register({
+    required String role,
+    required String fullName,
+    required String email,
+    required String password,
+  }) async {
+    final endpoint = role == 'Passenger'
+        ? '/auth/passenger/register'
+        : '/auth/operator/register';
 
-  final response = await http.post(
-    Uri.parse('$baseUrl$endpoint'),
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    },
-    body: jsonEncode({
-      'full_name': fullName.trim(),
-      'email': email.trim().toLowerCase(),
-      'password': password,
-    }),
-  );
+    final response = await http.post(
+      Uri.parse('$baseUrl$endpoint'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: jsonEncode({
+        'full_name': fullName.trim(),
+        'email': email.trim().toLowerCase(),
+        'password': password,
+      }),
+    );
 
-  final data = jsonDecode(response.body) as Map<String, dynamic>;
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
 
-  if (response.statusCode == 200 || response.statusCode == 201) {
-    return data;
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return data;
+    }
+
+    throw Exception(data['detail'] ?? 'Registration failed.');
   }
-
-  throw Exception(
-    data['detail'] ?? 'Registration failed.',
-  );
-}
 
   // Restore token when the app starts.
   static Future<void> loadToken() async {
@@ -112,10 +111,7 @@ static Future<Map<String, dynamic>> register({
 
     final response = await http.get(
       Uri.parse('$baseUrl/auth/me'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      },
+      headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
     );
 
     if (response.statusCode == 200) {

@@ -63,15 +63,10 @@ class _SplashScreenState extends State<SplashScreen>
         fit: StackFit.expand,
         children: [
           // Background image
-          Image.asset(
-            'assets/nganya.jpg',
-            fit: BoxFit.cover,
-          ),
+          Image.asset('assets/nganya.jpg', fit: BoxFit.cover),
 
           // Solid overlay
-          Container(
-            color: Colors.black.withValues(alpha: 0.55),
-          ),
+          Container(color: Colors.black.withValues(alpha: 0.55)),
 
           // Content
           SafeArea(

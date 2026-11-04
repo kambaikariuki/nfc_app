@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nfc_app/screens/enter_amount.dart';
+
 import 'transactions.dart';
 import 'profile.dart';
 
@@ -111,11 +112,7 @@ class _HomePage extends StatelessWidget {
         backgroundColor: const Color.fromARGB(255, 9, 9, 9),
         elevation: 0,
         centerTitle: true,
-        title: const Icon(
-          Icons.credit_card,
-          color: Colors.white,
-          size: 32,
-        ),
+        title: const Icon(Icons.credit_card, color: Colors.white, size: 32),
         leading: IconButton(
           icon: const Icon(Icons.menu, color: Colors.white),
           onPressed: () {},
@@ -173,16 +170,28 @@ class _HomePage extends StatelessWidget {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const EnterAmountScreen()));
-                        },),
+                            MaterialPageRoute(
+                              builder: (_) => const EnterAmountScreen(
+                                type: AmountScreenType.topUp,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                       _QuickAction(
                         icon: Icons.arrow_downward,
                         label: 'Withdraw',
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const EnterAmountScreen()));
-                        },),
+                            MaterialPageRoute(
+                              builder: (_) => const EnterAmountScreen(
+                                type: AmountScreenType.withdraw,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                       _QuickAction(icon: Icons.swap_horiz, label: 'Link Card'),
                     ],
                   ),
@@ -210,7 +219,10 @@ class _HomePage extends StatelessWidget {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const TransactionsScreen()));
+                        MaterialPageRoute(
+                          builder: (_) => const TransactionsScreen(),
+                        ),
+                      );
                     },
                     child: const Text(
                       'See all',
@@ -249,11 +261,7 @@ class _QuickAction extends StatelessWidget {
   final String label;
   final VoidCallback? onTap;
 
-  const _QuickAction({
-    required this.icon,
-    required this.label,
-    this.onTap
-    });
+  const _QuickAction({required this.icon, required this.label, this.onTap});
 
   @override
   Widget build(BuildContext context) {

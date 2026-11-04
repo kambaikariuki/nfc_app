@@ -75,7 +75,7 @@ class TransactionsScreen extends StatelessWidget {
       'icon': Icons.person,
       'color': Color(0xFF000000),
       'isDebit': true,
-    }
+    },
   ];
 
   /// Groups transactions by their date label
@@ -166,8 +166,9 @@ class TransactionsScreen extends StatelessWidget {
                                 width: 46,
                                 height: 46,
                                 decoration: BoxDecoration(
-                                  color: (tx['color'] as Color)
-                                      .withOpacity(0.12),
+                                  color: (tx['color'] as Color).withOpacity(
+                                    0.12,
+                                  ),
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                                 child: Icon(
@@ -216,11 +217,7 @@ class TransactionsScreen extends StatelessWidget {
                           ),
                         ),
                         if (!isLast)
-                          const Divider(
-                            height: 1,
-                            indent: 76,
-                            endIndent: 16,
-                          ),
+                          const Divider(height: 1, indent: 76, endIndent: 16),
                       ],
                     );
                   }).toList(),
