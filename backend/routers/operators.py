@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from models import OperatorWallet, Transaction
+from models import OperatorWallet, Transaction, Account, Passenger
 from database import get_db
 from auth import require_operator
 
@@ -31,8 +31,12 @@ def get_operator_wallet(current=Depends(require_operator), db: Session = Depends
     }
 
 @router.get("/transactions")
-def get_operator_transactions(current=Depends(require_operator), db: Session = Depends(get_db)):
+def get_operator_transactions(
+    current=Depends(require_operator),
+    db: Session = Depends(get_db)
+):
     operator_id = current["id"]
+
     wallet = db.scalar(
         select(OperatorWallet).where(
             OperatorWallet.operator_id == operator_id
@@ -42,8 +46,19 @@ def get_operator_transactions(current=Depends(require_operator), db: Session = D
     if wallet is None:
         raise HTTPException(404, "Operator account not found")
 
-    transactions = db.scalars(
-        select(Transaction)
+    transactions = db.execute(
+        select(
+            Transaction,
+            Passenger.full_name
+        )
+        .join(
+            Account,
+            Transaction.account_id == Account.id
+        )
+        .join(
+            Passenger,
+            Account.passenger_id == Passenger.id
+        )
         .where(Transaction.operator_id == operator_id)
         .order_by(Transaction.created_at.desc())
         .limit(20)
@@ -52,6 +67,7 @@ def get_operator_transactions(current=Depends(require_operator), db: Session = D
     return [
         {
             "transaction_id": tx.id,
+            "passenger_name": passenger_name,
             "operator_id": tx.operator_id,
             "amount": str(tx.amount),
             "status": tx.status,
@@ -60,5 +76,5 @@ def get_operator_transactions(current=Depends(require_operator), db: Session = D
                 if tx.created_at else None
             ),
         }
-        for tx in transactions
+        for tx, passenger_name in transactions
     ]
