@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nfc_app/screens/enter_amount.dart';
-
+import 'package:nfc_app/screens/link_card_screen.dart';
+import 'package:nfc_app/services/dashboard_service.dart';
+import 'package:nfc_app/widgets/transaction_list.dart';
 import 'transactions.dart';
 import 'profile.dart';
 
@@ -56,53 +58,53 @@ class _PassengerHomeState extends State<PassengerHome> {
 class _HomePage extends StatelessWidget {
   const _HomePage();
 
-  static const List<Map<String, dynamic>> _transactions = [
-    {
-      'title': 'John Kamau',
-      'subtitle': 'Tx. ID: 213345253',
-      'amount': '-KES 120',
-      'date': 'Oct 15',
-      'icon': Icons.person,
-      'color': Color(0xFF000000),
-      'isDebit': true,
-    },
-    {
-      'title': 'James Kanga',
-      'subtitle': 'Tx. ID: 213345253',
-      'amount': '-KES 130',
-      'date': 'Oct 16',
-      'icon': Icons.person,
-      'color': Color(0xFF000000),
-      'isDebit': true,
-    },
-    {
-      'title': 'Peter Njoroge',
-      'subtitle': 'Tx. ID: 213345253',
-      'amount': '-KES 30',
-      'date': 'Oct 17',
-      'icon': Icons.person,
-      'color': Color(0xFF000000),
-      'isDebit': true,
-    },
-    {
-      'title': 'Kevin Kungu',
-      'subtitle': 'Tx. ID: 213345253',
-      'amount': '-KES 130',
-      'date': 'Oct 17',
-      'icon': Icons.person,
-      'color': Color(0xFF000000),
-      'isDebit': true,
-    },
-    {
-      'title': 'Leon Kemboi',
-      'subtitle': 'Tx. ID: 213345253',
-      'amount': '-KES 120',
-      'date': 'Oct 18',
-      'icon': Icons.person,
-      'color': Color(0xFF000000),
-      'isDebit': true,
-    },
-  ];
+  // static const List<Map<String, dynamic>> _transactions = [
+  //   {
+  //     'title': 'John Kamau',
+  //     'subtitle': 'Tx. ID: 213345253',
+  //     'amount': '-KES 120',
+  //     'date': 'Oct 15',
+  //     'icon': Icons.person,
+  //     'color': Color(0xFF000000),
+  //     'isDebit': true,
+  //   },
+  //   {
+  //     'title': 'James Kanga',
+  //     'subtitle': 'Tx. ID: 213345253',
+  //     'amount': '-KES 130',
+  //     'date': 'Oct 16',
+  //     'icon': Icons.person,
+  //     'color': Color(0xFF000000),
+  //     'isDebit': true,
+  //   },
+  //   {
+  //     'title': 'Peter Njoroge',
+  //     'subtitle': 'Tx. ID: 213345253',
+  //     'amount': '-KES 30',
+  //     'date': 'Oct 17',
+  //     'icon': Icons.person,
+  //     'color': Color(0xFF000000),
+  //     'isDebit': true,
+  //   },
+  //   {
+  //     'title': 'Kevin Kungu',
+  //     'subtitle': 'Tx. ID: 213345253',
+  //     'amount': '-KES 130',
+  //     'date': 'Oct 17',
+  //     'icon': Icons.person,
+  //     'color': Color(0xFF000000),
+  //     'isDebit': true,
+  //   },
+  //   {
+  //     'title': 'Leon Kemboi',
+  //     'subtitle': 'Tx. ID: 213345253',
+  //     'amount': '-KES 120',
+  //     'date': 'Oct 18',
+  //     'icon': Icons.person,
+  //     'color': Color(0xFF000000),
+  //     'isDebit': true,
+  //   },
+  // ];
 
   @override
   Widget build(BuildContext context) {
@@ -145,20 +147,34 @@ class _HomePage extends StatelessWidget {
                   const Text(
                     'Current Balance',
                     style: TextStyle(
-                      color: Colors.white70,
+                      color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'KES 1,485.50',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1,
-                    ),
+                  FutureBuilder<Map<String, dynamic>>(
+                    future: DashboardService.getPassengerBalance(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      }
+
+                      if (snapshot.hasError) {
+                        return const Text('Could not load balance');
+                      }
+
+                      final balance = snapshot.data!['balance'];
+
+                      return Text(
+                        'KES $balance',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    },
                   ),
                   const SizedBox(height: 20),
                   Row(
@@ -192,7 +208,16 @@ class _HomePage extends StatelessWidget {
                           );
                         },
                       ),
-                      _QuickAction(icon: Icons.swap_horiz, label: 'Link Card'),
+                      _QuickAction(icon: Icons.swap_horiz,
+                      label: 'Link Card',
+                       onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const LinkCardScreen(),
+                            ),
+                          );
+                        },),
                     ],
                   ),
                 ],
@@ -236,17 +261,10 @@ class _HomePage extends StatelessWidget {
             const SizedBox(height: 8),
 
             // Transaction list
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              itemCount: _transactions.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final tx = _transactions[index];
-                return _TransactionTile(transaction: tx);
-              },
-            ),
+            TransactionList(
+      transactionsFuture:
+          DashboardService.getPassengerTransactions(),
+    ),
 
             const SizedBox(height: 24),
           ],
