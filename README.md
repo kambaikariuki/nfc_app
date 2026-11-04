@@ -1,18 +1,24 @@
 # nfc_app
 
-A mobile based application based on NFC technology to make financial transactions
+A Flutter mobile application for an NFC-based cashless fare collection system for matatus in Nairobi, Kenya.
 
-### Link to Github repo: 
+The application allows passengers to manage their accounts and view transactions, while operators can manage their wallets, prompt fare payments, and view payment history.
 
-https::/github.com/kambaikariuki/nfc_app 
 
 ## Setup
 
 1. Clone the repo onto your system.
 
+`git clone https://kambaikariuki/nfc_app.git`
+
+
 2. Ensure that you have `flutter` on your system. Run `flutter doctor` to ensure everything is working well.
 
-3. To run the flutter application, open a terminal in the root directory of the project and run `flutter run` then choose your device.
+`flutter doctor`
+
+3. To run the flutter application, open a terminal in the root directory of the project and run: 
+
+`flutter run`
 
 4. To run the server for the backend, open a terminal in the `backend` directory.
 
@@ -20,5 +26,9 @@ https::/github.com/kambaikariuki/nfc_app
 
   `curl -LsSf https://astral.sh/uv/install.sh | sh`
 
-6. Run `uv fastapi run dev` to start the development server.
+6. To get all the dependencies, run:
+
+`uv sync`
+
+7. Run `uv fastapi run dev` to start the development server.
 
