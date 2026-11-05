@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nfc_app/screens/enter_amount.dart';
+import 'package:nfc_app/screens/link_card_screen.dart';
 import 'package:nfc_app/services/dashboard_service.dart';
 import 'package:nfc_app/widgets/transaction_tile.dart';
 import 'transactions.dart';
@@ -147,13 +148,13 @@ class _HomePageState extends State<_HomePage> {
                     children: [
                       _QuickAction(
                         icon: Icons.arrow_upward,
-                        label: 'Prompt Payment',
+                        label: 'Top Up',
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => const EnterAmountScreen(
-                                type: AmountScreenType.promptPayment,
+                                type: AmountScreenType.topUp,
                               ),
                             ),
                           );
@@ -169,6 +170,18 @@ class _HomePageState extends State<_HomePage> {
                               builder: (_) => const EnterAmountScreen(
                                 type: AmountScreenType.withdraw,
                               ),
+                            ),
+                          );
+                        },
+                      ),
+                      _QuickAction(
+                        icon: Icons.swap_horiz,
+                        label: 'Link Card',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const LinkCardScreen()
                             ),
                           );
                         },
