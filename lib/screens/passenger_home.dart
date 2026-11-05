@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nfc_app/screens/enter_amount.dart';
-import 'package:nfc_app/screens/link_card_screen.dart';
 import 'package:nfc_app/services/dashboard_service.dart';
-import 'package:nfc_app/widgets/transaction_list.dart';
+import 'package:nfc_app/widgets/transaction_tile.dart';
 import 'transactions.dart';
 import 'profile.dart';
 
@@ -55,57 +54,23 @@ class _PassengerHomeState extends State<PassengerHome> {
 
 // ── HOME TAB ───────────────────────────────────────────────────────────────────
 
-class _HomePage extends StatelessWidget {
+class _HomePage extends StatefulWidget {
   const _HomePage();
 
-  // static const List<Map<String, dynamic>> _transactions = [
-  //   {
-  //     'title': 'John Kamau',
-  //     'subtitle': 'Tx. ID: 213345253',
-  //     'amount': '-KES 120',
-  //     'date': 'Oct 15',
-  //     'icon': Icons.person,
-  //     'color': Color(0xFF000000),
-  //     'isDebit': true,
-  //   },
-  //   {
-  //     'title': 'James Kanga',
-  //     'subtitle': 'Tx. ID: 213345253',
-  //     'amount': '-KES 130',
-  //     'date': 'Oct 16',
-  //     'icon': Icons.person,
-  //     'color': Color(0xFF000000),
-  //     'isDebit': true,
-  //   },
-  //   {
-  //     'title': 'Peter Njoroge',
-  //     'subtitle': 'Tx. ID: 213345253',
-  //     'amount': '-KES 30',
-  //     'date': 'Oct 17',
-  //     'icon': Icons.person,
-  //     'color': Color(0xFF000000),
-  //     'isDebit': true,
-  //   },
-  //   {
-  //     'title': 'Kevin Kungu',
-  //     'subtitle': 'Tx. ID: 213345253',
-  //     'amount': '-KES 130',
-  //     'date': 'Oct 17',
-  //     'icon': Icons.person,
-  //     'color': Color(0xFF000000),
-  //     'isDebit': true,
-  //   },
-  //   {
-  //     'title': 'Leon Kemboi',
-  //     'subtitle': 'Tx. ID: 213345253',
-  //     'amount': '-KES 120',
-  //     'date': 'Oct 18',
-  //     'icon': Icons.person,
-  //     'color': Color(0xFF000000),
-  //     'isDebit': true,
-  //   },
-  // ];
+  @override
+  State<_HomePage> createState() => _HomePageState();
+}
 
+class _HomePageState extends State<_HomePage> {
+  late Future<List<dynamic>> _transactionsFuture;
+  late Future<Map<String, dynamic>> _walletFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _transactionsFuture = DashboardService.getPassengerTransactions();
+    _walletFuture = DashboardService.getPassengerBalance();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -147,20 +112,20 @@ class _HomePage extends StatelessWidget {
                   const Text(
                     'Current Balance',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Colors.white70,
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
                     ),
                   ),
                   const SizedBox(height: 8),
                   FutureBuilder<Map<String, dynamic>>(
-                    future: DashboardService.getPassengerBalance(),
+                    future: _walletFuture,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const CircularProgressIndicator();
                       }
 
-                      if (snapshot.hasError) {
+                      if (snapshot.hasError || !snapshot.hasData) {
                         return const Text('Could not load balance');
                       }
 
@@ -182,13 +147,13 @@ class _HomePage extends StatelessWidget {
                     children: [
                       _QuickAction(
                         icon: Icons.arrow_upward,
-                        label: 'Top Up',
+                        label: 'Prompt Payment',
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => const EnterAmountScreen(
-                                type: AmountScreenType.topUp,
+                                type: AmountScreenType.promptPayment,
                               ),
                             ),
                           );
@@ -208,16 +173,6 @@ class _HomePage extends StatelessWidget {
                           );
                         },
                       ),
-                      _QuickAction(icon: Icons.swap_horiz,
-                      label: 'Link Card',
-                       onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const LinkCardScreen(),
-                            ),
-                          );
-                        },),
                     ],
                   ),
                 ],
@@ -261,10 +216,37 @@ class _HomePage extends StatelessWidget {
             const SizedBox(height: 8),
 
             // Transaction list
-            TransactionList(
-      transactionsFuture:
-          DashboardService.getPassengerTransactions(),
-    ),
+            FutureBuilder<List<dynamic>>(
+              future: _transactionsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return const Text('Could not load transactions.');
+                }
+
+                final transactions = snapshot.data ?? [];
+
+                if (transactions.isEmpty) {
+                  return const Center(child: Text('No transactions yet.'));
+                }
+
+                return ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  itemCount: transactions.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final tx = transactions[index];
+
+                    return TransactionTile(transaction: tx, isPassenger: true,);
+                  },
+                );
+              },
+            ),
 
             const SizedBox(height: 24),
           ],
@@ -307,84 +289,3 @@ class _QuickAction extends StatelessWidget {
   }
 }
 
-class _TransactionTile extends StatelessWidget {
-  final Map<String, dynamic> transaction;
-
-  const _TransactionTile({required this.transaction});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 46,
-            height: 46,
-            decoration: BoxDecoration(
-              color: (transaction['color'] as Color).withOpacity(0.12),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(
-              transaction['icon'] as IconData,
-              color: transaction['color'] as Color,
-              size: 22,
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  transaction['title'] as String,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15,
-                    color: Color(0xFF1A1A2E),
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  transaction['subtitle'] as String,
-                  style: const TextStyle(fontSize: 13, color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                transaction['amount'] as String,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                  color: (transaction['isDebit'] as bool)
-                      ? const Color(0xFFE53935)
-                      : const Color(0xFF43A047),
-                ),
-              ),
-              const SizedBox(height: 3),
-              Text(
-                transaction['date'] as String,
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}

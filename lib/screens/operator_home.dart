@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nfc_app/screens/enter_amount.dart';
 import 'package:nfc_app/services/dashboard_service.dart';
-
+import 'package:nfc_app/widgets/transaction_tile.dart';
 import 'transactions.dart';
 import 'profile.dart';
 
@@ -70,7 +70,8 @@ class _HomePageState extends State<_HomePage> {
     super.initState();
     _transactionsFuture = DashboardService.getOperatorTransactions();
     _walletFuture = DashboardService.getOperatorWallet();
-  }  @override
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
@@ -241,7 +242,7 @@ class _HomePageState extends State<_HomePage> {
                   itemBuilder: (context, index) {
                     final tx = transactions[index];
 
-                    return _TransactionTile(transaction: tx);
+                    return TransactionTile(transaction: tx, isPassenger: false,);
                   },
                 );
               },
@@ -288,68 +289,3 @@ class _QuickAction extends StatelessWidget {
   }
 }
 
-class _TransactionTile extends StatelessWidget {
-  final Map<String, dynamic> transaction;
-
-  const _TransactionTile({required this.transaction});
-
-  @override
-  Widget build(BuildContext context) {
-    final amount = transaction['amount'] ?? '0.00';
-    final date = transaction['created_at'];
-    final formattedDate = date != null
-        ? DateTime.parse(date).toLocal().toString().split('.')[0]
-        : 'Date unavailable';
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.person, color: Colors.black, size: 24),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${transaction['passenger_name']}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  formattedDate,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '+KES $amount',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                  color: Color(0xFF43A047),
-                ),
-              ),
-              const SizedBox(height: 3),
-              Text(
-                transaction['status'] ?? 'Unknown',
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
