@@ -146,3 +146,67 @@ To generate the `JWT_SECRET_KEY` run:
 python -c "import secrets; print(secrets.token_hex(32))"
 ```
 
+
+### 3. Install dependencies ###
+
+Ensure uv is installed:
+
+```python
+uv --version
+```
+
+If you don't have uv, install it on Linux/macOS using:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+On Windows PowerShell, use:
+
+```
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+Install the backend dependencies:
+
+```
+uv sync
+```
+
+### 4. Run database migrations ###
+
+Create database tables using migrations:
+
+```
+uv run alembic upgrade head
+```
+
+
+### 5. Start the development server ###
+
+Run the API locally:
+
+```
+uv run fastapi dev
+```
+
+The API will be available at:
+
+```
+http://127.0.01:8000
+```
+
+API documentation:
+
+```
+http://127:0.0.1:8000/docs
+```
+
+# License #
+
+This project is developed as an academic/software engineering project.
+
+
+
+
+
