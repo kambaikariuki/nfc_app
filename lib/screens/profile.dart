@@ -32,22 +32,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         },
       ],
     },
-    {
-      'section': 'Preferences',
-      'items': [
-        {
-          'icon': Icons.notifications_outlined,
-          'label': 'Notifications',
-          'color': Color(0xFF43A047),
-        },
-        // {'icon': Icons.language_outlined, 'label': 'Language', 'color': Color(0xFF43A047)},
-        {
-          'icon': Icons.dark_mode_outlined,
-          'label': 'Appearance',
-          'color': Color(0xFF43A047),
-        },
-      ],
-    },
+    
     {
       'section': 'Support',
       'items': [
