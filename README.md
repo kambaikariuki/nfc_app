@@ -1,34 +1,93 @@
-# nfc_app
+# MatPay
 
-A Flutter mobile application for an NFC-based cashless fare collection system for matatus in Nairobi, Kenya.
+MatPay is a Flutter mobile application for an NFC-based cashless fare collection system for matatus in Nairobi, Kenya.
 
-The application allows passengers to manage their accounts and view transactions, while operators can manage their wallets, prompt fare payments, and view payment history.
+Powered by a FastAPI backend and PostgreSQL, MatPay allows passengers to pay their fares using NFC cards linked to their mobile accounts. Passengers simply tap their NFC cards against an operator's NFC-enabled smartphone to complete a fare payment.
 
-
-## Setup
-
-1. Clone the repo onto your system.
-
-`git clone https://kambaikariuki/nfc_app.git`
+[Backend API.](https://nfc-app-p9pi.onrender.com) Hosted on [Render.](https://render.com/)
 
 
-2. Ensure that you have `flutter` on your system. Run `flutter doctor` to ensure everything is working well.
+## Features
 
-`flutter doctor`
+#### Passenger
+- Passenger registration and authentication.
 
-3. To run the flutter application, open a terminal in the root directory of the project and run: 
+- Link NFC cards to passenger accounts.
 
-`flutter run`
+- View account balance.
 
-4. To run the server for the backend, open a terminal in the `backend` directory.
+- View transaction history.
 
-5. Ensure you have `uv` running on your system. Run `uv --version` to confirm. If you don't have `uv` run the following command to install it:
+- Pay matatu fares using NFC cards.
 
-  `curl -LsSf https://astral.sh/uv/install.sh | sh`
+- Manage active NFC cards.
+  
+#### Operator
+- Operator registration and authentication.
 
-6. To get all the dependencies, run:
+- Prompt fare payment.
 
-`uv sync`
+- Receive payment into directly into wallet.
 
-7. Run `uv fastapi run dev` to start the development server.
+- View wallet balance.
+
+- View transaction history.
+  
+
+## Technologies
+
+- Flutter
+- FastAPI
+- PostgreSQL
+
+## Prerequisites
+
+Before setting up the project, ensure you have:
+
+- Flutter SDK
+
+- Dart SDK (included with Flutter)
+
+- Python 3.12 or later
+
+- uv package manager
+
+- Git
+
+- PostgreSQL (only if running your own local backend)
+
+For NFC functionality, an NFC-compatible Android device is also required.
+
+# Installation
+
+**1. Clone the repo onto your system.**
+
+```bash
+git clone https://github.com/kambaikariuki/nfc_app.git
+cd nfc_app
+```
+
+**2. Setup Flutter application.**
+
+Ensure Flutter is installed and configured:
+
+```bash
+flutter doctor
+```
+Get dependencies:
+
+```bash
+flutter pub get
+```
+
+Run the application:
+```bash
+flutter run
+```
+
+# Run backend locally
+
+**1. Setup database**
+
+Using Postgres, create a new database for the application
 
