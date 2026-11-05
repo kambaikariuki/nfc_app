@@ -1,14 +1,17 @@
-
 import 'package:flutter/material.dart';
 
 class TransactionTile extends StatelessWidget {
   final Map<String, dynamic> transaction;
   final bool isPassenger;
+  final bool showCard;
+  final bool showDate;
 
   const TransactionTile({
     super.key,
     required this.transaction,
     required this.isPassenger,
+    this.showCard = true,
+    this.showDate = true,
   });
 
   @override
@@ -35,10 +38,12 @@ class TransactionTile extends StatelessWidget {
         horizontal: 16,
         vertical: 14,
       ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      decoration: showCard
+      ? BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        )
+      : null,
       child: Row(
         children: [
           Icon(

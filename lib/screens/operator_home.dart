@@ -17,7 +17,7 @@ class _OperatorHomeState extends State<OperatorHome> {
 
   final List<Widget> _pages = const [
     _HomePage(),
-    TransactionsScreen(),
+    TransactionsScreen(userRole: 'operator'),
     ProfileScreen(),
   ];
 
@@ -200,7 +200,7 @@ class _HomePageState extends State<_HomePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const TransactionsScreen(),
+                          builder: (_) => const TransactionsScreen(userRole: 'operator',),
                         ),
                       );
                     },
