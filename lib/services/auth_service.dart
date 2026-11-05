@@ -4,7 +4,11 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  static const String baseUrl = 'http://localhost:8000';
+  // static const String baseUrl = 'http://localhost:8000';
+
+  // Android phone
+  static const String baseUrl = 'http://192.168.0.103:8000';
+  
 
   static String? accessToken;
 
