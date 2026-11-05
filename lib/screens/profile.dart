@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:nfc_app/screens/splash_screen.dart';
 import 'package:nfc_app/services/auth_service.dart';
 import 'package:nfc_app/services/dashboard_service.dart';
-
-import 'auth/log_in.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -47,11 +46,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       'section': 'Account',
       'items': [
         {
-          'icon': Icons.person_outline,
-          'label': 'Edit Profile',
-          'color': Color(0xFF6C63FF),
-        },
-        {
           'icon': Icons.lock_outline,
           'label': 'Change Password',
           'color': Color(0xFF6C63FF),
@@ -92,7 +86,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => const LoginPage()),
+      MaterialPageRoute(builder: (context) => const SplashScreen()),
       (route) => false,
     );
   }
