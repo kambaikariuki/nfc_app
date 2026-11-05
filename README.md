@@ -82,7 +82,7 @@ flutter pub get
 
 Run the application:
 ```bash
-flutter run
+flutter run --web-port 5000
 ```
 
 # Run backend locally
