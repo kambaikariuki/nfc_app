@@ -139,12 +139,13 @@ class _TopUpScreenState extends State<TopUpScreen>
           ),
 
           SafeArea(
-            child: Padding(
+            child: SingleChildScrollView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.symmetric(horizontal: 32.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 48),
+                  const SizedBox(height: 24),
 
                   // Title + icon
                   FadeTransition(
@@ -182,9 +183,9 @@ class _TopUpScreenState extends State<TopUpScreen>
                     ),
                   ),
 
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 28),
 
-                  // Amount summary card
+                  // Amount summary
                   FadeTransition(
                     opacity: _amountFade,
                     child: Container(
@@ -224,7 +225,7 @@ class _TopUpScreenState extends State<TopUpScreen>
                     ),
                   ),
 
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 28),
 
                   // Phone number input
                   FadeTransition(
@@ -261,19 +262,19 @@ class _TopUpScreenState extends State<TopUpScreen>
                             'e.g. 0712 345 678',
                             prefixText: '+254  ',
                           ),
-                          autofocus: true,
+                          autofocus: false,
                         ),
                       ],
                     ),
                   ),
 
-                  const Spacer(),
+                  const SizedBox(height: 32),
 
                   // Confirm button
                   FadeTransition(
                     opacity: _buttonFade,
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: 48.0),
+                      padding: const EdgeInsets.only(bottom: 24),
                       child: SizedBox(
                         width: double.infinity,
                         height: 54,
