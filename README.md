@@ -87,7 +87,62 @@ flutter run
 
 # Run backend locally
 
-**1. Setup database**
+### 1. Setup database ###
 
-Using Postgres, create a new database for the application
+Navigate to the backend directory:
+
+```bash
+cd backend
+```
+
+Connect to postgres.
+
+
+```bash
+psql -U postgres
+
+```
+
+At the `postgres=#` prompt, create the database:
+
+```SQL
+CREATE DATABASE nfc_app_db;
+```
+
+Connect to the new database:
+```SQL
+\c nfc_app_db
+```
+
+Create a dedicated database user and grant database privileges:
+
+```SQL
+CREATE USER nfc_user WITH PASSWORD 'your_secure_password';
+GRANT ALL PRIVILEGES ON DATABASE nfc_app_db TO _nfc_user;
+```
+
+Connect to the database as the new user and grant schema privileges:
+
+```SQL
+GRANT ALL ON SCHEMA public TO nfc_user;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO nfc_user;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO nfc_user;
+```
+
+### 2. Configure environment variables ###
+
+Inside the `backend` directory, use the `.sample.env` to create your `.env` file. Replace `db_user` and `db_password` with your database user and password.
+
+```
+DATABASE_URL=postgresql+psycopg://db_user:db_password@localhost:5432/nfc_app_db
+JWT_SECRET_KEY=secret_key
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+```
+
+To generate the `JWT_SECRET_KEY` run:
+
+```
+python -c "import secrets; print(secrets.token_hex(32))"
+```
 
