@@ -31,6 +31,11 @@ class DashboardService {
     );
   }
 
+  // Profile
+  static Future<Map<String, dynamic>> getProfile() async {
+    return await _get('/auth/me') as Map<String, dynamic>;
+  }
+
   // Passenger
   static Future<Map<String, dynamic>> getPassengerBalance() async {
     return await _get('/passengers/balance')

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nfc_app/services/auth_service.dart';
+import 'package:nfc_app/services/dashboard_service.dart';
 
 import 'auth/log_in.dart';
 
@@ -11,6 +12,36 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  Map<String, dynamic>? _profile;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    try {
+      final data = await DashboardService.getProfile();
+
+      if (!mounted) return;
+
+      setState(() {
+        _profile = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      debugPrint('Profile loading error: $e');
+    }
+  }
+
   static const List<Map<String, dynamic>> _settingsItems = [
     {
       'section': 'Account',
@@ -32,7 +63,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         },
       ],
     },
-    
     {
       'section': 'Support',
       'items': [
@@ -83,12 +113,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             fontSize: 18,
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_outlined, color: Colors.white),
-            onPressed: () {},
-          ),
-        ],
+        actions: [],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -133,18 +158,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             color: Colors.white,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(
-                            Icons.camera_alt,
-                            size: 16,
-                            color: Color(0xFF6C63FF),
-                          ),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    'John Doe',
+                  Text(
+                    _isLoading
+                        ? 'Loading...'
+                        : _profile?['full_name'] ?? 'Unknown User',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 22,
@@ -152,22 +174,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'johndoe@email.com',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
+                  Text(
+                    _profile?['email'] ?? '',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
+
                   const SizedBox(height: 20),
-                  // Stats row
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  //   children: [
-                  //     _StatChip(label: 'Balance', value: 'KES1,485'),
-                  //     Container(width: 1, height: 36, color: Colors.white24),
-                  //     _StatChip(label: 'Transactions', value: '128'),
-                  //     Container(width: 1, height: 36, color: Colors.white24),
-                  //     _StatChip(label: 'Cards', value: '3'),
-                  //   ],
-                  // ),
                 ],
               ),
             ),
