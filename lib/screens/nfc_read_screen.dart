@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:nfc_manager/nfc_manager_android.dart';
+import 'package:nfc_app/services/payment_service.dart';
+import 'package:nfc_app/screens/payment_success.dart';
+import 'package:uuid/uuid.dart';
 
 
 class NfcReadScreen extends StatefulWidget {
   final double amount;
 
-  const NfcReadScreen({
-    super.key,
-    required this.amount,
-  });
+  const NfcReadScreen({super.key, required this.amount});
 
   @override
   State<NfcReadScreen> createState() => _NfcReadScreenState();
@@ -34,10 +34,63 @@ class _NfcReadScreenState extends State<NfcReadScreen>
   bool _sessionStarted = false;
   bool _cardDetected = false;
 
+  bool _paymentInProgress = false;
+  String? _paymentError;
+  String? _paymentRequestId;
+  String? _paymentCardUid;
+
   String _statusMessage = 'Checking NFC...';
   String _hintMessage = 'Please wait.';
 
   String? _cardUid;
+
+  Future<void> _processPayment(String cardUid) async {
+    if (_paymentInProgress) return;
+
+    setState(() {
+      _paymentInProgress = true;
+      _paymentError = null;
+      _statusMessage = 'Processing payment...';
+      _hintMessage = 'Please wait while we process the fare.';
+    });
+
+
+    if (_paymentCardUid != cardUid) {
+      _paymentCardUid = cardUid;
+      _paymentRequestId = const Uuid().v4();
+    }
+
+    try {
+      final transaction = await PaymentService.payFare(
+        cardUid: cardUid,
+        amount: widget.amount,
+        requestId: _paymentRequestId!,
+      );
+
+      if (!mounted) return;
+
+      await Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PaymentSuccessScreen(
+            amount: widget.amount,
+            cardUid: cardUid,
+            transaction: transaction,
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _paymentInProgress = false;
+        _cardDetected = true;
+        _paymentError = e.toString().replaceFirst('Exception: ', '');
+        _statusMessage = 'Payment failed';
+        _hintMessage = _paymentError!;
+      });
+    }
+  }
 
   // Check NFC availability
   Future<void> _checkAndStartNfc() async {
@@ -62,8 +115,7 @@ class _NfcReadScreenState extends State<NfcReadScreen>
           _checkingNfc = false;
           _nfcEnabled = false;
           _statusMessage = 'NFC unavailable';
-          _hintMessage =
-              'This device does not have NFC available or it is turned off.\nPlease check your phone settings.';
+          _hintMessage = 'This device does not have NFC available or it is turned off.\nPlease check your phone settings.';
         });
 
         return;
@@ -73,8 +125,7 @@ class _NfcReadScreenState extends State<NfcReadScreen>
         _checkingNfc = false;
         _nfcEnabled = true;
         _statusMessage = 'Waiting for card...';
-        _hintMessage =
-            'Ask the passenger to tap their NTAG213 card here.';
+        _hintMessage = 'Ask the passenger to tap their NTAG213 card here.';
       });
 
       await _startNfcSession();
@@ -94,35 +145,35 @@ class _NfcReadScreenState extends State<NfcReadScreen>
   Future<void> _startNfcSession() async {
     try {
       await NfcManager.instance.startSession(
-        pollingOptions: {
-          NfcPollingOption.iso14443,
-        },
+        pollingOptions: {NfcPollingOption.iso14443},
         onDiscovered: (NfcTag tag) async {
           if (!mounted || _cardDetected) return;
 
           // NTAG213 uses NFC-A / ISO 14443 Type A
           final androidTag = NfcTagAndroid.from(tag);
 
-if (androidTag == null) {
-  setState(() {
-    _statusMessage = 'Unable to read this NFC card.';
-  });
-  return;
-}
+          if (androidTag == null) {
+            setState(() {
+              _statusMessage = 'Unable to read this NFC card.';
+            });
+            return;
+          }
 
-final cardUid = androidTag.id
-    .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
-    .join()
-    .toUpperCase();
+          final cardUid = androidTag.id
+              .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
+              .join()
+              .toUpperCase();
 
-setState(() {
-  _cardUid = cardUid;
-  _cardDetected = true;
-  _statusMessage = 'Card detected successfully!';
-});
+          setState(() {
+            _cardUid = cardUid;
+            _cardDetected = true;
+            _statusMessage = 'Card detected successfully!';
+            _hintMessage = 'Sending payment request...';
+          });
 
-await NfcManager.instance.stopSession();
+          await NfcManager.instance.stopSession();
           _sessionStarted = false;
+          await _processPayment(cardUid);
         },
       );
 
@@ -242,8 +293,7 @@ await NfcManager.instance.stopSession();
 
   @override
   Widget build(BuildContext context) {
-    final formattedAmount =
-        'KES ${widget.amount.toStringAsFixed(2)}';
+    final formattedAmount = 'KES ${widget.amount.toStringAsFixed(2)}';
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -251,10 +301,7 @@ await NfcManager.instance.stopSession();
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: Colors.white,
-          ),
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -357,8 +404,8 @@ await NfcManager.instance.stopSession();
                                     _cardDetected
                                         ? Icons.check_circle_outline
                                         : _nfcEnabled
-                                            ? Icons.contactless_rounded
-                                            : Icons.nfc_rounded,
+                                        ? Icons.contactless_rounded
+                                        : Icons.nfc_rounded,
                                     color: _cardDetected
                                         ? Colors.greenAccent
                                         : Colors.white,
@@ -389,8 +436,8 @@ await NfcManager.instance.stopSession();
                               color: _cardDetected
                                   ? Colors.greenAccent
                                   : _nfcEnabled
-                                      ? Colors.white
-                                      : Colors.orangeAccent,
+                                  ? Colors.white
+                                  : Colors.orangeAccent,
                             ),
                           ),
 
@@ -409,6 +456,7 @@ await NfcManager.instance.stopSession();
 
                           // Retry button
                           if (!_checkingNfc &&
+                              !_paymentInProgress &&
                               (!_nfcEnabled || _cardDetected)) ...[
                             const SizedBox(height: 20),
 
@@ -422,9 +470,7 @@ await NfcManager.instance.stopSession();
                               ),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Colors.white,
-                                side: const BorderSide(
-                                  color: Colors.white54,
-                                ),
+                                side: const BorderSide(color: Colors.white54),
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 24,
                                   vertical: 12,

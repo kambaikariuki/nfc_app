@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:nfc_manager/nfc_manager.dart';
+import 'package:nfc_manager/nfc_manager_android.dart';
+
+import 'package:nfc_app/services/card_service.dart';
 
 class LinkCardScreen extends StatefulWidget {
   const LinkCardScreen({super.key});
@@ -20,6 +24,169 @@ class _LinkCardScreenState extends State<LinkCardScreen>
   late Animation<double> _pulse1;
   late Animation<double> _pulse2;
   late Animation<double> _pulse3;
+
+  bool _checkingNfc = true;
+  bool _nfcEnabled = false;
+  bool _sessionStarted = false;
+  bool _processing = false;
+  bool _cardLinked = false;
+
+  String _statusMessage = 'Checking NFC...';
+  String _hintMessage = 'Please wait.';
+
+  String? _cardUid;
+  String? _errorMessage;
+
+  Future<void> _checkAndStartNfc() async {
+    if (!mounted) return;
+
+    setState(() {
+      _checkingNfc = true;
+      _nfcEnabled = false;
+      _processing = false;
+      _cardLinked = false;
+      _cardUid = null;
+      _errorMessage = null;
+      _statusMessage = 'Checking NFC...';
+      _hintMessage = 'Please wait.';
+    });
+
+    try {
+      final available = await NfcManager.instance.isAvailable();
+
+      if (!mounted) return;
+
+      if (!available) {
+        setState(() {
+          _checkingNfc = false;
+          _statusMessage = 'NFC unavailable';
+          _hintMessage = 'Please enable NFC in your phone settings.';
+        });
+        return;
+      }
+
+      setState(() {
+        _checkingNfc = false;
+        _nfcEnabled = true;
+        _statusMessage = 'Waiting for card...';
+        _hintMessage =
+            'Hold your NTAG213 card close to the back of this phone.';
+      });
+
+      await _startNfcSession();
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _checkingNfc = false;
+        _statusMessage = 'Unable to start NFC';
+        _hintMessage = 'Please check your device and try again.';
+      });
+    }
+  }
+
+  Future<void> _startNfcSession() async {
+    try {
+      await NfcManager.instance.startSession(
+        pollingOptions: {NfcPollingOption.iso14443},
+        onDiscovered: (NfcTag tag) async {
+          if (!mounted || _cardUid != null) return;
+
+          // Read Android NFC tag UID.
+          final androidTag = NfcTagAndroid.from(tag);
+
+          if (androidTag == null) {
+            await NfcManager.instance.stopSession();
+            _sessionStarted = false;
+
+            if (!mounted) return;
+
+            setState(() {
+              _nfcEnabled = false;
+              _statusMessage = 'Unable to read card';
+              _hintMessage = 'Please try another card.';
+              _errorMessage = 'Unsupported NFC card.';
+            });
+
+            return;
+          }
+
+          final uid = androidTag.id
+              .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
+              .join()
+              .toUpperCase();
+
+          if (!mounted) return;
+
+          setState(() {
+            _cardUid = uid;
+            _statusMessage = 'Card detected!';
+            _hintMessage = 'Registering your NFC card...';
+          });
+
+          await NfcManager.instance.stopSession();
+          _sessionStarted = false;
+
+          await _linkCard(uid);
+        },
+      );
+
+      _sessionStarted = true;
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _nfcEnabled = false;
+        _statusMessage = 'NFC scanning failed';
+        _hintMessage = 'Unable to start scanning. Please try again.';
+      });
+    }
+  }
+
+  Future<void> _linkCard(String uid) async {
+    if (_processing) return;
+
+    setState(() {
+      _processing = true;
+      _statusMessage = 'Linking card...';
+      _hintMessage = 'Please wait while we register your card.';
+    });
+
+    try {
+      final response = await CardService.linkCard(uid: uid);
+
+      if (!mounted) return;
+
+      if (response['status'] != 'active') {
+        throw Exception('Unexpected response from server.');
+      }
+
+      setState(() {
+        _processing = false;
+        _cardLinked = true;
+        _statusMessage = 'Card linked successfully!';
+        _hintMessage = 'Your NFC card is now ready for payments.';
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _processing = false;
+        _errorMessage = e.toString().replaceFirst('Exception: ', '');
+        _statusMessage = 'Unable to link card';
+        _hintMessage = _errorMessage!;
+      });
+    }
+  }
+
+  Future<void> _retryScanning() async {
+    if (_sessionStarted) {
+      await NfcManager.instance.stopSession();
+      _sessionStarted = false;
+    }
+
+    await _checkAndStartNfc();
+  }
 
   @override
   void initState() {
@@ -68,6 +235,7 @@ class _LinkCardScreenState extends State<LinkCardScreen>
       parent: _pulseController,
       curve: const Interval(0.66, 1.0, curve: Curves.easeOut),
     );
+    _checkAndStartNfc();
   }
 
   @override
@@ -178,9 +346,14 @@ class _LinkCardScreenState extends State<LinkCardScreen>
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
-                          _buildRing(_pulse1, 120),
-                          _buildRing(_pulse2, 120),
-                          _buildRing(_pulse3, 120),
+                          if (_nfcEnabled &&
+                              !_processing &&
+                              !_cardLinked &&
+                              _errorMessage == null) ...[
+                            _buildRing(_pulse1, 120),
+                            _buildRing(_pulse2, 120),
+                            _buildRing(_pulse3, 120),
+                          ],
                           Container(
                             width: 96,
                             height: 96,
@@ -192,11 +365,27 @@ class _LinkCardScreenState extends State<LinkCardScreen>
                                 width: 1.5,
                               ),
                             ),
-                            child: const Icon(
-                              Icons.credit_card_rounded,
-                              color: Colors.white,
-                              size: 44,
-                            ),
+                            child: _checkingNfc || _processing
+                                ? const Padding(
+                                    padding: EdgeInsets.all(28),
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : Icon(
+                                    _cardLinked
+                                        ? Icons.check_circle_outline
+                                        : _errorMessage != null
+                                        ? Icons.error_outline
+                                        : Icons.credit_card_rounded,
+                                    color: _cardLinked
+                                        ? Colors.greenAccent
+                                        : _errorMessage != null
+                                        ? Colors.orangeAccent
+                                        : Colors.white,
+                                    size: 44,
+                                  ),
                           ),
                         ],
                       ),
@@ -212,20 +401,25 @@ class _LinkCardScreenState extends State<LinkCardScreen>
                       padding: const EdgeInsets.only(bottom: 48.0),
                       child: Column(
                         children: [
-                          const Text(
-                            'Waiting for card...',
+                          Text(
+                            _statusMessage,
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               fontFamily: 'Poppins',
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                              color: _cardLinked
+                                  ? Colors.greenAccent
+                                  : _errorMessage != null
+                                  ? Colors.orangeAccent
+                                  : Colors.white,
                             ),
                           ),
                           const SizedBox(height: 8),
-                          const Text(
-                            'Hold your NFC card or device\nclose to the back of this phone.',
+                          Text(
+                            _hintMessage,
                             textAlign: TextAlign.center,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontFamily: 'Poppins',
                               fontSize: 14,
                               color: Colors.white54,
@@ -233,30 +427,56 @@ class _LinkCardScreenState extends State<LinkCardScreen>
                             ),
                           ),
                           const SizedBox(height: 28),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 54,
-                            child: OutlinedButton(
-                              onPressed: () => Navigator.pop(context),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.white,
-                                side: const BorderSide(
-                                  color: Colors.white38,
-                                  width: 1.5,
+
+                          if (!_checkingNfc && !_processing) ...[
+                            if (_cardLinked)
+                              SizedBox(
+                                width: double.infinity,
+                                height: 54,
+                                child: ElevatedButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Done',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                              )
+                            else if (!_nfcEnabled || _errorMessage != null)
+                              SizedBox(
+                                width: double.infinity,
+                                height: 54,
+                                child: OutlinedButton(
+                                  onPressed: _retryScanning,
+                                  child: const Text('Try again'),
                                 ),
                               ),
-                              child: const Text(
-                                'Cancel',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
+
+                            if (!_cardLinked)
+                              SizedBox(
+                                width: double.infinity,
+                                height: 54,
+                                child: OutlinedButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: Colors.white,
+                                    side: const BorderSide(
+                                      color: Colors.white38,
+                                    ),
+                                  ),
+                                  child: const Text('Cancel'),
                                 ),
                               ),
-                            ),
-                          ),
+                          ],
                         ],
                       ),
                     ),
