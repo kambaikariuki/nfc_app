@@ -83,9 +83,9 @@ Get dependencies:
 flutter pub get
 ```
 
-Run the application:
+Connect your device and run the application:
 ```bash
-flutter run --web-port 5000
+flutter run
 ```
 
 # Run backend locally
