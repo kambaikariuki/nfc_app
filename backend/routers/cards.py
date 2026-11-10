@@ -72,13 +72,12 @@ def link_nfc_card(card_data: LinkCardRequest, current: dict = Depends(require_pa
 @router.delete("/delete")
 def delete_card(current: dict = Depends(require_passenger), db: Session = Depends(get_db)):
     card = db.scalar(select(NfcCard).where(
-        NfcCard.passenger_id == current["id"]
+        NfcCard.passenger_id == current["id"],
+        NfcCard.is_active == True
     ))
 
-    
-
     if not card:
-        raise HTTPException(404, "Card not found.")
+        raise HTTPException(404, "No active card found.")
 
     try:
         card.is_active = False
