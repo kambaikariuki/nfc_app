@@ -134,7 +134,7 @@ class _SignUpPageState extends State<SignUpPage>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '${_selectedRole == 'passenger' ? 'Passenger' : 'Operator'} account created successfully!',
+            '${_selectedRole == 'Passenger' ? 'Passenger' : 'Operator'} account created successfully!',
           ),
         ),
       );
