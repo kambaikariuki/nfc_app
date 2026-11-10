@@ -15,7 +15,7 @@ class CardService {
 
     final response = await http.post(
       Uri.parse(
-        '${AuthService.baseUrl}/passengers/me/cards',
+        '${AuthService.baseUrl}/cards/register',
       ),
       headers: {
         'Authorization': 'Bearer $token',

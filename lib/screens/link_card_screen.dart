@@ -157,7 +157,7 @@ class _LinkCardScreenState extends State<LinkCardScreen>
 
       if (!mounted) return;
 
-      if (response['status'] != 'active') {
+      if (response['message'] != 'NFC card linked successfully') {
         throw Exception('Unexpected response from server.');
       }
 

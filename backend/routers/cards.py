@@ -39,7 +39,7 @@ def link_nfc_card(card_data: LinkCardRequest, current: dict = Depends(require_pa
         )
     )
     if existing_card:
-        raise HTTPException(409, "This NFC card is already registered and in use.")
+        raise HTTPException(409, "This NFC card is already registered or in use.")
 
     duplicate_card = db.scalar(
         select(NfcCard).where(
