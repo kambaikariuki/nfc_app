@@ -184,3 +184,25 @@ def authenticated_operator(client, test_data):
         "headers": {"Authorization": f"Bearer {token}"},
         "data": test_data,
     }
+
+@pytest.fixture
+def authenticated_passenger(client, test_data):
+    response = client.post(
+        "/auth/passenger/login",
+        json={
+            "email": test_data["passenger_email"],
+            "password": test_data["passenger_password"],
+        },
+    )
+
+    assert response.status_code == 200, response.text
+
+    body = response.json()
+
+    token = body.get("access_token")
+    assert token, f"No access_token in login response: {body}"
+
+    return {
+        "headers": {"Authorization": f"Bearer {token}"},
+        "data": test_data,
+    }
