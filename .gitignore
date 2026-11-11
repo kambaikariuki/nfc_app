@@ -49,6 +49,7 @@ app.*.map.json
 
 # env file
 .env
+backend\sample.env
 
 .venv/
 __pycache__/
