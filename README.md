@@ -7,6 +7,7 @@ Powered by a FastAPI backend and PostgreSQL, MatPay allows passengers to pay the
 [Backend API.](https://nfc-app-p9pi.onrender.com) Hosted on [Render.](https://render.com/)
 
 **[Technical walkthrough video](https://drive.google.com/file/d/131i0MXGoejgZCOZashEm1oCWEInhr-eo/view?usp=sharing)**
+
 **[Technical report](https://drive.google.com/file/d/1h4n-Yl0zS-0IYASYYKjRj57uIczqLaVZ/view?usp=sharing)**
 
 
@@ -83,9 +84,9 @@ Get dependencies:
 flutter pub get
 ```
 
-Run the application:
+Connect your device and run the application:
 ```bash
-flutter run --web-port 5000
+flutter run
 ```
 
 # Run backend locally
