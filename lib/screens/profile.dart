@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nfc_app/screens/splash_screen.dart';
 import 'package:nfc_app/services/auth_service.dart';
 import 'package:nfc_app/services/dashboard_service.dart';
+import 'package:nfc_app/screens/profile/active_cards.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -214,7 +215,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           return Column(
                             children: [
                               ListTile(
-                                onTap: () {},
+                                onTap: () {
+                                  switch (item['label']) {
+                                    case 'Linked Cards':
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const ActiveCardsScreen(),
+                                        ),
+                                      );
+                                      break;
+
+                                    case 'Change Password':
+                                      // Add change password navigation here.
+                                      break;
+
+                                    case 'Help & Support':
+                                      // Add support navigation here.
+                                      break;
+                                  }
+                                },
                                 leading: Container(
                                   width: 38,
                                   height: 38,
