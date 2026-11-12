@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:nfc_manager/nfc_manager_android.dart';
 import 'package:nfc_app/services/payment_service.dart';
-import 'package:nfc_app/screens/payment_success.dart';
+import 'package:nfc_app/screens/operator/payment_success.dart';
 import 'package:uuid/uuid.dart';
 
 

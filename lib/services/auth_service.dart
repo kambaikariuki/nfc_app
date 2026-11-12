@@ -8,7 +8,7 @@ class AuthService {
   // static const String baseUrl = 'http://localhost:8000';
 
   // Android phone
-  static const String baseUrl = 'http://192.168.0.101:8000';
+  static const String baseUrl = 'http://192.168.0.105:8000';
   
 
   static String? accessToken;

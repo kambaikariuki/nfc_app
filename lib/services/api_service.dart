@@ -7,7 +7,7 @@ class ApiService {
 // chrome
   // static const String baseUrl = "http://localhost:8000";
 // android
-  static const String baseUrl = "http://192.168.0.101:8000";
+  static const String baseUrl = "http://192.168.0.105:8000";
 
   static Future<Map<String, dynamic>> testConnection() async {
     final response = await http

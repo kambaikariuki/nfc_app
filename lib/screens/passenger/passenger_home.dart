@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:nfc_app/screens/enter_amount.dart';
+import 'package:nfc_app/screens/passenger/link_card_screen.dart';
+import 'package:nfc_app/screens/passenger/passenger_profile.dart';
 import 'package:nfc_app/services/dashboard_service.dart';
 import 'package:nfc_app/widgets/transaction_tile.dart';
-import 'transactions.dart';
-import 'profile.dart';
+import '../transactions.dart';
 
-class OperatorHome extends StatefulWidget {
-  const OperatorHome({super.key});
+class PassengerHome extends StatefulWidget {
+  const PassengerHome({super.key});
 
   @override
-  State<OperatorHome> createState() => _OperatorHomeState();
+  State<PassengerHome> createState() => _PassengerHomeState();
 }
 
-class _OperatorHomeState extends State<OperatorHome> {
+class _PassengerHomeState extends State<PassengerHome> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = const [
     _HomePage(),
-    TransactionsScreen(userRole: 'operator'),
-    ProfileScreen(),
+    TransactionsScreen(userRole: 'passenger'),
+    PassengerProfileScreen(),
   ];
 
   @override
@@ -68,8 +69,8 @@ class _HomePageState extends State<_HomePage> {
   @override
   void initState() {
     super.initState();
-    _transactionsFuture = DashboardService.getOperatorTransactions();
-    _walletFuture = DashboardService.getOperatorWallet();
+    _transactionsFuture = DashboardService.getPassengerTransactions();
+    _walletFuture = DashboardService.getPassengerBalance();
   }
   @override
   Widget build(BuildContext context) {
@@ -147,13 +148,13 @@ class _HomePageState extends State<_HomePage> {
                     children: [
                       _QuickAction(
                         icon: Icons.arrow_upward,
-                        label: 'Prompt Payment',
+                        label: 'Top Up',
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => const EnterAmountScreen(
-                                type: AmountScreenType.promptPayment,
+                                type: AmountScreenType.topUp,
                               ),
                             ),
                           );
@@ -169,6 +170,18 @@ class _HomePageState extends State<_HomePage> {
                               builder: (_) => const EnterAmountScreen(
                                 type: AmountScreenType.withdraw,
                               ),
+                            ),
+                          );
+                        },
+                      ),
+                      _QuickAction(
+                        icon: Icons.swap_horiz,
+                        label: 'Link Card',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const LinkCardScreen()
                             ),
                           );
                         },
@@ -200,7 +213,7 @@ class _HomePageState extends State<_HomePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const TransactionsScreen(userRole: 'operator',),
+                          builder: (_) => const TransactionsScreen(userRole: 'passenger',),
                         ),
                       );
                     },
@@ -242,7 +255,7 @@ class _HomePageState extends State<_HomePage> {
                   itemBuilder: (context, index) {
                     final tx = transactions[index];
 
-                    return TransactionTile(transaction: tx, isPassenger: false,);
+                    return TransactionTile(transaction: tx, isPassenger: true,);
                   },
                 );
               },

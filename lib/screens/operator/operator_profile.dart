@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:nfc_app/screens/splash_screen.dart';
 import 'package:nfc_app/services/auth_service.dart';
 import 'package:nfc_app/services/dashboard_service.dart';
-import 'package:nfc_app/screens/profile/active_cards.dart';
+import 'package:nfc_app/screens/privacy_policy.dart';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+class OperatorProfileScreen extends StatefulWidget {
+  const OperatorProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<OperatorProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<OperatorProfileScreen> {
   Map<String, dynamic>? _profile;
   bool _isLoading = true;
 
@@ -49,11 +49,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         {
           'icon': Icons.lock_outline,
           'label': 'Change Password',
-          'color': Color(0xFF6C63FF),
-        },
-        {
-          'icon': Icons.credit_card_outlined,
-          'label': 'Linked Cards',
           'color': Color(0xFF6C63FF),
         },
       ],
@@ -217,19 +212,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ListTile(
                                 onTap: () {
                                   switch (item['label']) {
-                                    case 'Linked Cards':
+                                    case 'Change Password':
+                                      // Add change password navigation here.
+                                      break;
+
+                                    case 'Privacy Policy':
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) =>
-                                              const ActiveCardsScreen(),
+                                              const PrivacyPolicyScreen(),
                                         ),
                                       );
-                                      break;
-
-                                    case 'Change Password':
-                                      // Add change password navigation here.
-                                      break;
 
                                     case 'Help & Support':
                                       // Add support navigation here.

@@ -2,8 +2,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:nfc_app/screens/auth/sign_up.dart';
 import 'package:nfc_app/services/auth_service.dart';
-import 'package:nfc_app/screens/operator_home.dart';
-import 'package:nfc_app/screens/passenger_home.dart';
+import 'package:nfc_app/screens/operator/operator_home.dart';
+import 'package:nfc_app/screens/passenger/passenger_home.dart';
 import 'package:nfc_app/screens/splash_screen.dart';
 
 class LoginPage extends StatefulWidget {

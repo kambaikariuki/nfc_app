@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:nfc_app/screens/nfc_read_screen.dart';
-import 'package:nfc_app/screens/topup_screen.dart';
-import 'package:nfc_app/screens/withdraw_screen.dart';
+import 'package:nfc_app/screens/operator/nfc_read_screen.dart';
+import 'package:nfc_app/screens/passenger/topup_screen.dart';
+import 'package:nfc_app/screens/operator/withdraw_screen.dart';
 
 enum AmountScreenType { topUp, withdraw, promptPayment }
 

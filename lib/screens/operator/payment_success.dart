@@ -16,10 +16,6 @@ class PaymentSuccessScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final transactionId = transaction['transaction_id'].toString();
 
-    final passengerBalance = transaction['passenger_balance'].toString();
-
-    final operatorBalance = transaction['operator_balance'].toString();
-
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
       body: SafeArea(
