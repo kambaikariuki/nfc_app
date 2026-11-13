@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthService {
 
   static String? accessToken;
-  static const baseUrl = {ApiConfig.baseUrl};
+  static const baseUrl = ApiConfig.baseUrl;
 
   // Log in
   static Future<Map<String, dynamic>> login({
