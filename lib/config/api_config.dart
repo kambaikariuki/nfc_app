@@ -1,13 +1,9 @@
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
 
-class ApiService {
-  // Change to deployed address on render https://nfc-app-p9pi.onrender.com
-// chrome
-  // static const String baseUrl = "http://localhost:8000";
-// android
-  static const String baseUrl = "http://192.168.0.105:8000";
+class ApiConfig {
+
+  static const String baseUrl = "https://nfc-app-p9pi.onrender.com";
 
   static Future<Map<String, dynamic>> testConnection() async {
     final response = await http

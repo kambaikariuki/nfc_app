@@ -1,17 +1,12 @@
 import 'dart:convert';
-
+import 'package:nfc_app/config/api_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  // chrome 
-  // static const String baseUrl = 'http://localhost:8000';
-
-  // Android phone
-  static const String baseUrl = 'http://192.168.0.105:8000';
-  
 
   static String? accessToken;
+  static const baseUrl = {ApiConfig.baseUrl};
 
   // Log in
   static Future<Map<String, dynamic>> login({

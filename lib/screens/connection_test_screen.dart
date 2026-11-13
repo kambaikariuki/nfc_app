@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../services/api_service.dart';
+import '../config/api_config.dart';
 
 class ConnectionTestScreen extends StatefulWidget {
   const ConnectionTestScreen({super.key});
@@ -20,7 +20,7 @@ class _ConnectionTestScreenState extends State<ConnectionTestScreen> {
     });
 
     try {
-      final result = await ApiService.testConnection();
+      final result = await ApiConfig.testConnection();
 
       if (!mounted) return;
       setState(() {
