@@ -54,4 +54,3 @@ app.*.map.json
 .venv/
 __pycache__/
 *.py[cod]
-backend/alembic/versions/
