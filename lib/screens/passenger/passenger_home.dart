@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:nfc_app/screens/enter_amount.dart';
 import 'package:nfc_app/screens/passenger/link_card_screen.dart';
@@ -53,7 +54,7 @@ class _PassengerHomeState extends State<PassengerHome> {
   }
 }
 
-// ── HOME TAB ───────────────────────────────────────────────────────────────────
+// HOME TAB
 
 class _HomePage extends StatefulWidget {
   const _HomePage();
@@ -72,6 +73,35 @@ class _HomePageState extends State<_HomePage> {
     _transactionsFuture = DashboardService.getPassengerTransactions();
     _walletFuture = DashboardService.getPassengerBalance();
   }
+
+  // Refresh passenger balance and transactions
+  Future<void> _refreshDashboard() async {
+    setState(() {
+      _transactionsFuture =
+          DashboardService.getPassengerTransactions();
+      _walletFuture = DashboardService.getPassengerBalance();
+    });
+
+    await Future.wait([
+      _transactionsFuture,
+      _walletFuture,
+    ]);
+  }
+
+  // Navigate to amount screen and refresh after success
+  Future<void> _openAmountScreen(AmountScreenType type) async {
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => EnterAmountScreen(type: type),
+      ),
+    );
+
+    if (result == true && mounted) {
+      await _refreshDashboard();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,177 +122,183 @@ class _HomePageState extends State<_HomePage> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Balance section
-            Container(
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color.fromARGB(255, 9, 9, 9),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(32),
-                  bottomRight: Radius.circular(32),
+
+      // Pull-to-refresh
+      body: RefreshIndicator(
+        onRefresh: _refreshDashboard,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Balance section
+              Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color.fromARGB(255, 9, 9, 9),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(32),
+                    bottomRight: Radius.circular(32),
+                  ),
+                ),
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'Current Balance',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    FutureBuilder<Map<String, dynamic>>(
+                      future: _walletFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        }
+
+                        if (snapshot.hasError || !snapshot.hasData) {
+                          return const Text('Could not load balance');
+                        }
+
+                        final balance = snapshot.data!['balance'];
+
+                        return Text(
+                          'KES $balance',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _QuickAction(
+                          icon: Icons.arrow_upward,
+                          label: 'Top Up',
+                          onTap: () =>
+                              _openAmountScreen(AmountScreenType.topUp),
+                        ),
+                        _QuickAction(
+                          icon: Icons.arrow_downward,
+                          label: 'Withdraw',
+                          onTap: () =>
+                              _openAmountScreen(AmountScreenType.withdraw),
+                        ),
+                        _QuickAction(
+                          icon: Icons.swap_horiz,
+                          label: 'Link Card',
+                          onTap: () async {
+                            final result = await Navigator.push<bool>(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const LinkCardScreen(),
+                              ),
+                            );
+
+                            if (result == true && mounted) {
+                              await _refreshDashboard();
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Current Balance',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
+
+              const SizedBox(height: 24),
+
+              // Recent Transactions header
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Recent Transactions',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1A1A2E),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  FutureBuilder<Map<String, dynamic>>(
-                    future: _walletFuture,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const CircularProgressIndicator();
-                      }
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const TransactionsScreen(
+                              userRole: 'passenger',
+                            ),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        'See all',
+                        style: TextStyle(color: Color(0xFF6C63FF)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
-                      if (snapshot.hasError || !snapshot.hasData) {
-                        return const Text('Could not load balance');
-                      }
+              const SizedBox(height: 8),
 
-                      final balance = snapshot.data!['balance'];
+              // Transaction list
+              FutureBuilder<List<dynamic>>(
+                future: _transactionsFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
 
-                      return Text(
-                        'KES $balance',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                        ),
+                  if (snapshot.hasError) {
+                    return const Text('Could not load transactions.');
+                  }
+
+                  final transactions = snapshot.data ?? [];
+
+                  if (transactions.isEmpty) {
+                    return const Center(
+                      child: Text('No transactions yet.'),
+                    );
+                  }
+
+                  return ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: transactions.length,
+                    separatorBuilder: (_, __) =>
+                        const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      final tx = transactions[index];
+
+                      return TransactionTile(
+                        transaction: tx,
+                        isPassenger: true,
                       );
                     },
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _QuickAction(
-                        icon: Icons.arrow_upward,
-                        label: 'Top Up',
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const EnterAmountScreen(
-                                type: AmountScreenType.topUp,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      _QuickAction(
-                        icon: Icons.arrow_downward,
-                        label: 'Withdraw',
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const EnterAmountScreen(
-                                type: AmountScreenType.withdraw,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      _QuickAction(
-                        icon: Icons.swap_horiz,
-                        label: 'Link Card',
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const LinkCardScreen()
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ],
+                  );
+                },
               ),
-            ),
 
-            const SizedBox(height: 24),
-
-            // Recent Transactions header
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Recent Transactions',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1A1A2E),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const TransactionsScreen(userRole: 'passenger',),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      'See all',
-                      style: TextStyle(color: Color(0xFF6C63FF)),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            // Transaction list
-            FutureBuilder<List<dynamic>>(
-              future: _transactionsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (snapshot.hasError) {
-                  return const Text('Could not load transactions.');
-                }
-
-                final transactions = snapshot.data ?? [];
-
-                if (transactions.isEmpty) {
-                  return const Center(child: Text('No transactions yet.'));
-                }
-
-                return ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  itemCount: transactions.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final tx = transactions[index];
-
-                    return TransactionTile(transaction: tx, isPassenger: true,);
-                  },
-                );
-              },
-            ),
-
-            const SizedBox(height: 24),
-          ],
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
     );
@@ -274,7 +310,11 @@ class _QuickAction extends StatelessWidget {
   final String label;
   final VoidCallback? onTap;
 
-  const _QuickAction({required this.icon, required this.label, this.onTap});
+  const _QuickAction({
+    required this.icon,
+    required this.label,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -294,11 +334,13 @@ class _QuickAction extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             label,
-            style: const TextStyle(color: Colors.white70, fontSize: 12),
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 12,
+            ),
           ),
         ],
       ),
     );
   }
 }
-
