@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
-import 'package:nfc_manager/nfc_manager_android.dart';
 
 class NfcTestScreen extends StatefulWidget {
   const NfcTestScreen({super.key});
@@ -10,12 +9,8 @@ class NfcTestScreen extends StatefulWidget {
 }
 
 class _NfcTestScreenState extends State<NfcTestScreen> {
-  String _status = 'Checking NFC...';
-  String? _cardUid;
-
-  bool _isAvailable = false;
-  bool _isScanning = false;
-  bool _isReading = false;
+  bool? _isAvailable;
+  bool _isChecking = true;
 
   @override
   void initState() {
@@ -24,198 +19,100 @@ class _NfcTestScreenState extends State<NfcTestScreen> {
   }
 
   Future<void> _checkNfc() async {
-    final available = await NfcManager.instance.isAvailable();
-
-    if (!mounted) return;
-
     setState(() {
-      _isAvailable = available;
-      _status = available
-          ? 'NFC is available. Ready to scan.'
-          : 'NFC is unavailable or disabled.';
-    });
-  }
-
-  Future<void> _startScan() async {
-    if (!_isAvailable || _isScanning) return;
-
-    setState(() {
-      _cardUid = null;
-      _status = 'Hold your card near the phone...';
-      _isScanning = true;
-      _isReading = true;
+      _isChecking = true;
     });
 
     try {
-      await NfcManager.instance.startSession(
-        pollingOptions: {NfcPollingOption.iso14443},
-        onDiscovered: (NfcTag tag) async {
-          try {
-            final androidTag = NfcTagAndroid.from(tag);
+      final available = await NfcManager.instance.isAvailable();
 
-            if (androidTag == null) {
-              throw Exception('Unable to read Android NFC tag.');
-            }
+      if (!mounted) return;
 
-            final uid = androidTag.id
-                .map(
-                  (byte) => byte
-                      .toRadixString(16)
-                      .padLeft(2, '0'),
-                )
-                .join()
-                .toUpperCase();
-
-            await NfcManager.instance.stopSession();
-
-            if (!mounted) return;
-
-            setState(() {
-              _cardUid = uid;
-              _status = 'Card successfully detected!';
-              _isScanning = false;
-              _isReading = false;
-            });
-          } catch (e) {
-            await NfcManager.instance.stopSession();
-
-            if (!mounted) return;
-
-            setState(() {
-              _status = 'Error reading card: $e';
-              _isScanning = false;
-              _isReading = false;
-            });
-          }
-        },
-      );
+      setState(() {
+        _isAvailable = available;
+        _isChecking = false;
+      });
     } catch (e) {
       if (!mounted) return;
 
       setState(() {
-        _status = 'Could not start NFC scanning: $e';
-        _isScanning = false;
-        _isReading = false;
+        _isAvailable = false;
+        _isChecking = false;
       });
     }
-  }
-
-  Future<void> _stopScan() async {
-    if (_isScanning) {
-      await NfcManager.instance.stopSession();
-    }
-
-    if (!mounted) return;
-
-    setState(() {
-      _isScanning = false;
-      _isReading = false;
-      _status = 'Scanning stopped.';
-    });
-  }
-
-  @override
-  void dispose() {
-    if (_isScanning) {
-      NfcManager.instance.stopSession();
-    }
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('NFC Test'),
+        title: const Text('NFC Availability'),
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Icon(
-              _cardUid != null
-                  ? Icons.check_circle
-                  : Icons.nfc,
-              size: 100,
-              color: _cardUid != null
-                  ? Colors.green
-                  : Colors.blue,
-            ),
-
-            const SizedBox(height: 24),
-
-            Text(
-              _status,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16),
-            ),
-
-            const SizedBox(height: 32),
-
-            if (_cardUid != null) ...[
-              const Text(
-                'CARD UID',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey,
-                  letterSpacing: 2,
-                ),
-              ),
-
-              const SizedBox(height: 12),
-
-              SelectableText(
-                _cardUid!,
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 3,
-                ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                _isChecking
+                    ? Icons.nfc
+                    : _isAvailable == true
+                        ? Icons.check_circle
+                        : Icons.cancel,
+                size: 100,
+                color: _isChecking
+                    ? Colors.blue
+                    : _isAvailable == true
+                        ? Colors.green
+                        : Colors.red,
               ),
 
               const SizedBox(height: 24),
-            ],
 
-            if (_isReading)
-              const CircularProgressIndicator(),
-
-            const SizedBox(height: 24),
-
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton(
-                onPressed: !_isAvailable || _isScanning
-                    ? null
-                    : _startScan,
-                child: const Text('Scan NFC Card'),
+              Text(
+                _isChecking
+                    ? 'Checking NFC availability...'
+                    : _isAvailable == true
+                        ? 'NFC is enabled'
+                        : 'NFC is unavailable or disabled',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
 
-            if (_isScanning) ...[
               const SizedBox(height: 12),
+
+              Text(
+                _isChecking
+                    ? 'Please wait.'
+                    : _isAvailable == true
+                        ? 'Your phone is ready to use NFC.'
+                        : 'Enable NFC in your phone settings if your device supports it.',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
+              ),
+
+              const SizedBox(height: 32),
+
               SizedBox(
                 width: double.infinity,
                 height: 52,
-                child: OutlinedButton(
-                  onPressed: _stopScan,
-                  child: const Text('Stop Scanning'),
+                child: ElevatedButton.icon(
+                  onPressed: _isChecking ? null : _checkNfc,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Check Again'),
                 ),
               ),
             ],
-
-            const SizedBox(height: 16),
-
-            TextButton(
-              onPressed: _checkNfc,
-              child: const Text('Check NFC availability again'),
-            ),
-          ],
+          ),
         ),
       ),
     );

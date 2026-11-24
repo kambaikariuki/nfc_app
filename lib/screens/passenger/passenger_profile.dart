@@ -4,6 +4,8 @@ import 'package:nfc_app/services/auth_service.dart';
 import 'package:nfc_app/services/dashboard_service.dart';
 import 'package:nfc_app/screens/passenger/active_cards.dart';
 import 'package:nfc_app/screens/privacy_policy.dart';
+import 'package:nfc_app/screens/auth/change_password.dart';
+import 'package:nfc_app/screens/nfc_test_screen.dart';
 
 class PassengerProfileScreen extends StatefulWidget {
   const PassengerProfileScreen({super.key});
@@ -55,6 +57,11 @@ class _ProfileScreenState extends State<PassengerProfileScreen> {
         {
           'icon': Icons.credit_card_outlined,
           'label': 'Linked Cards',
+          'color': Color(0xFF6C63FF),
+        },
+        {
+          'icon': Icons.nfc,
+          'label': 'Check NFC compatibility',
           'color': Color(0xFF6C63FF),
         },
       ],
@@ -218,6 +225,15 @@ class _ProfileScreenState extends State<PassengerProfileScreen> {
                               ListTile(
                                 onTap: () {
                                   switch (item['label']) {
+                                    case 'Change Password':
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const ChangePasswordScreen(),
+                                        ),
+                                      );
+
                                     case 'Linked Cards':
                                       Navigator.push(
                                         context,
@@ -237,9 +253,14 @@ class _ProfileScreenState extends State<PassengerProfileScreen> {
                                         ),
                                       );
 
-                                    case 'Change Password':
-                                      // Add change password navigation here.
-                                      break;
+                                    case 'Check NFC compatibility':
+                                     Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const NfcTestScreen(),
+                                        ),
+                                      );
 
                                     case 'Help & Support':
                                       // Add support navigation here.

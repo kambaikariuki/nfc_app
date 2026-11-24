@@ -1,10 +1,10 @@
 import 'dart:convert';
+
 import 'package:nfc_app/config/api_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-
   static String? accessToken;
   static const baseUrl = ApiConfig.baseUrl;
 
@@ -136,5 +136,32 @@ class AuthService {
     await prefs.remove('user_role');
 
     accessToken = null;
+  }
+
+  static Future<Map<String, dynamic>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/password/change'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+      body: jsonEncode({
+        'current_password': currentPassword,
+        'new_password': newPassword,
+        'confirm_password': confirmPassword,
+      }),
+    );
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return data;
+    }
+
+    throw Exception(data['detail'] ?? 'Failed to change password');
   }
 }

@@ -3,6 +3,8 @@ import 'package:nfc_app/screens/splash_screen.dart';
 import 'package:nfc_app/services/auth_service.dart';
 import 'package:nfc_app/services/dashboard_service.dart';
 import 'package:nfc_app/screens/privacy_policy.dart';
+import 'package:nfc_app/screens/auth/change_password.dart';
+import 'package:nfc_app/screens/nfc_test_screen.dart';
 
 class OperatorProfileScreen extends StatefulWidget {
   const OperatorProfileScreen({super.key});
@@ -49,6 +51,11 @@ class _ProfileScreenState extends State<OperatorProfileScreen> {
         {
           'icon': Icons.lock_outline,
           'label': 'Change Password',
+          'color': Color(0xFF6C63FF),
+        },
+        {
+          'icon': Icons.nfc,
+          'label': 'Check NFC compatibility',
           'color': Color(0xFF6C63FF),
         },
       ],
@@ -213,8 +220,22 @@ class _ProfileScreenState extends State<OperatorProfileScreen> {
                                 onTap: () {
                                   switch (item['label']) {
                                     case 'Change Password':
-                                      // Add change password navigation here.
-                                      break;
+                                     Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const ChangePasswordScreen(),
+                                        ),
+                                      );
+
+                                    case 'Check NFC compatibility':
+                                     Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const NfcTestScreen(),
+                                        ),
+                                      );
 
                                     case 'Privacy Policy':
                                       Navigator.push(
