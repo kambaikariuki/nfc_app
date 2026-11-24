@@ -108,8 +108,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
               'database. Security measures include password hashing, '
               'token-based authentication, role-based access '
               'restrictions and database constraints designed to '
-              'maintain transaction accuracy. No digital system '
-              'can guarantee absolute security.',
+              'maintain transaction accuracy.',
             ),
 
             _section(
