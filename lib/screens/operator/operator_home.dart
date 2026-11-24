@@ -95,16 +95,6 @@ class _HomePageState extends State<_HomePage> {
         elevation: 0,
         centerTitle: true,
         title: const Icon(Icons.credit_card, color: Colors.white, size: 32),
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.white),
-          onPressed: () {},
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: Colors.white),
-            onPressed: () {},
-          ),
-        ],
       ),
 
       // Pull-to-refresh
