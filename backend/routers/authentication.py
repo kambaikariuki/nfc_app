@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
-from schemas import PassengerRegister, LoginRequest, OperatorRegister
+from schemas import PassengerRegister, LoginRequest, OperatorRegister, ChangePasswordRequest
 from models import Passenger, Account, Operator, OperatorWallet
 from database import get_db
 from auth import password_hasher, verify_password, create_access_token, get_current_user
@@ -127,4 +127,50 @@ def get_my_profile(current=Depends(get_current_user)):
         "full_name": user.full_name,
         "email": user.email,
         "role": current["role"],
+    }
+
+@router.post("/password/change")
+def change_password(
+    data: ChangePasswordRequest, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user),
+):
+    role = current_user["role"]
+    user_id = current_user["id"]
+
+    if role == "passenger":
+        user = db.query(Passenger).filter(
+            Passenger.id == user_id
+        ).first()
+
+    elif role == "operator":
+        user = db.query(Operator).filter(
+            Operator.id == user_id
+        ).first()
+
+    else:
+        raise HTTPException(
+            status_code=403,
+            detail="Invalid user role"
+        )
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    if not verify_password(
+        data.current_password,
+        user.password_hash
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="Current password is incorrect"
+        )
+
+    user.password_hash = password_hasher.hash(data.new_password)
+
+    db.commit()
+
+    return {
+        "message": "Password changed successfully"
     }
